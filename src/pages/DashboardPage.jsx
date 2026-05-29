@@ -4,6 +4,7 @@ import {
   Leaf,
   ShieldCheck,
 } from "lucide-react";
+import { useState } from "react";
 import PredictionHistoryChart from "../components/charts/PredictionHistoryChart";
 import NutrientTrendChart from "../components/charts/NutrientTrendChart";
 import SensorTrendChart from "../components/charts/SensorTrendChart";
@@ -14,22 +15,34 @@ import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DeviceStatusPanel from "../components/dashboard/DeviceStatusPanel";
 import MetricCard from "../components/dashboard/MetricCard";
 import OperationsPanel from "../components/dashboard/OperationsPanel";
+import PredictionDetailModal from "../components/dashboard/PredictionDetailModal";
 import PredictionPanel from "../components/dashboard/PredictionPanel";
 import SensorTile from "../components/dashboard/SensorTile";
 import LocationPanel from "../components/location/LocationPanel";
 import RecentReadingsTable from "../components/table/RecentReadingsTable";
 import { useDashboardData } from "../hooks/useDashboardData";
 import { getDeviceConnectionStatus } from "../utils/deviceStatus";
-import { formatDateTime, formatPercent } from "../utils/format";
+import { formatDateTime, formatNumber, formatPercent } from "../utils/format";
 import { getOverallHealth, SENSOR_META } from "../utils/health";
-import { formatYieldCount, getPredictionStageInfo, getYieldCountInfo } from "../utils/prediction";
+import {
+  formatYieldCount,
+  getBatchAgeDays,
+  getPredictionConfidence,
+  getPredictionFreshness,
+  getPredictionStageInfo,
+  getYieldCountInfo,
+} from "../utils/prediction";
 
 const sensorOrder = Object.keys(SENSOR_META);
 
 export default function DashboardPage({ profile }) {
   const { data, loading, error, lastRefresh, refresh } = useDashboardData();
+  const [detailType, setDetailType] = useState(null);
   const latestReading = data.sensorReadings?.[0];
-  const latestPrediction = data.predictions?.[0];
+  const rawLatestPrediction = data.predictions?.[0];
+  const predictionFreshness = getPredictionFreshness(rawLatestPrediction, latestReading);
+  const latestPrediction = data.isMock || predictionFreshness.isFresh ? rawLatestPrediction : null;
+  const stalePrediction = rawLatestPrediction && !latestPrediction ? rawLatestPrediction : null;
   const latestPump = data.pumpEvents?.[0] || {
     pump_on: Boolean(latestReading?.pump_on),
     schedule: "06:00-18:00 Asia/Manila",
@@ -37,13 +50,28 @@ export default function DashboardPage({ profile }) {
   };
   const latestWeather = data.weatherSnapshots?.[0];
   const health = getOverallHealth(latestReading);
-  const stageInfo = getPredictionStageInfo(latestPrediction);
+  const stageSource = latestPrediction || latestReading;
+  const stageInfo = getPredictionStageInfo(stageSource);
   const yieldInfo = getYieldCountInfo(latestPrediction);
+  const confidence = getPredictionConfidence(latestPrediction) ?? getPredictionConfidence(latestReading);
+  const cropAgeDays = getBatchAgeDays(latestPrediction, latestReading);
   const connectionStatus = getDeviceConnectionStatus({
     latestReading,
     isMock: data.isMock,
     error,
   });
+  const stageDetail = latestPrediction
+    ? `${stageInfo.classId === null ? "Classifier label" : `Class ${stageInfo.classId}`} / ${
+        cropAgeDays === null ? "age pending" : `${formatNumber(cropAgeDays, 1)} days`
+      } / ${formatDateTime(latestPrediction.timestamp)}`
+    : latestReading
+      ? `Current age-stage / ${cropAgeDays === null ? "age pending" : `${formatNumber(cropAgeDays, 1)} days`} / ${formatDateTime(latestReading.timestamp)}`
+      : "Waiting for classifier output";
+  const confidenceDetail = latestPrediction
+    ? "Fresh XGBoost class probability"
+    : stalePrediction
+      ? `Age-stage confidence; stale ML from ${formatDateTime(stalePrediction.timestamp)}`
+      : "Age-stage confidence until ML window completes";
 
   return (
     <div className="flex flex-col gap-5">
@@ -67,19 +95,16 @@ export default function DashboardPage({ profile }) {
           icon={Brain}
           label="Growth Stage"
           value={stageInfo.label}
-          detail={
-            latestPrediction
-              ? `${stageInfo.classId === null ? "Classifier label" : `Class ${stageInfo.classId}`} / ${formatDateTime(latestPrediction.timestamp)}`
-              : "Waiting for classifier output"
-          }
+          detail={stageDetail}
           tone="emerald"
+          onClick={() => setDetailType("stage")}
         />
         <MetricCard
           icon={Gauge}
           label="Confidence"
-          value={formatPercent(latestPrediction?.stage_probability)}
-          detail="XGBoost class probability"
-          tone={Number(latestPrediction?.stage_probability || 0) >= 0.75 ? "emerald" : "amber"}
+          value={confidence === null ? "--" : formatPercent(confidence)}
+          detail={confidenceDetail}
+          tone={Number(confidence || 0) >= 0.75 ? "emerald" : "amber"}
         />
         <MetricCard
           icon={Leaf}
@@ -88,10 +113,13 @@ export default function DashboardPage({ profile }) {
           unit="heads"
           detail={
             yieldInfo.raw === null
-              ? "Waiting for XGBoost regressor"
-              : `XGBoost regressor / ${yieldInfo.count} of ${yieldInfo.slots} slots`
+              ? stalePrediction
+                ? `Waiting for fresh 10-sample ML window; stale row ${formatDateTime(stalePrediction.timestamp)}`
+                : "Waiting for fresh 10-sample ML window"
+              : `Fresh XGBoost regressor / ${yieldInfo.count} of ${yieldInfo.slots} slots`
           }
           tone="sky"
+          onClick={() => setDetailType("yield")}
         />
         <MetricCard
           icon={ShieldCheck}
@@ -155,16 +183,26 @@ export default function DashboardPage({ profile }) {
           <BatchPanel
             cropBatches={data.cropBatches || []}
             isMock={data.isMock}
+            latestReading={latestReading}
             latestPrediction={latestPrediction}
             onRefresh={refresh}
           />
-          <PredictionPanel prediction={latestPrediction} />
+          <PredictionPanel prediction={latestPrediction} stalePrediction={stalePrediction} />
           <OperationsPanel pumpEvent={latestPump} weather={latestWeather} />
           <ActionList latestReading={latestReading} connectionStatus={connectionStatus} />
         </aside>
       </section>
 
       <LocationPanel profile={profile} latestReading={latestReading} />
+
+      <PredictionDetailModal
+        type={detailType}
+        prediction={latestPrediction}
+        stalePrediction={stalePrediction}
+        latestReading={latestReading}
+        cropBatches={data.cropBatches || []}
+        onClose={() => setDetailType(null)}
+      />
     </div>
   );
 }

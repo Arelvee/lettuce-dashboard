@@ -75,8 +75,8 @@ export default function AuthPage({ onBack, onAuthenticated }) {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto grid min-h-screen max-w-7xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
-        <section className="relative flex flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 sm:p-8"
+      <div className="mx-auto grid min-h-dvh max-w-7xl items-center gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)] lg:gap-8 lg:px-8">
+        <section className="relative order-2 flex min-h-[360px] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-5 sm:p-8 lg:order-1 lg:min-h-[calc(100dvh-3rem)]"
           style={{
             backgroundImage:
               "linear-gradient(180deg, rgba(2,6,23,0.18), rgba(2,6,23,0.92)), url('https://commons.wikimedia.org/wiki/Special:Redirect/file/Lettuce_in_Vertical_Farm.jpg')",
@@ -93,9 +93,9 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               Back
             </button>
           </div>
-          <div className="mt-20 max-w-xl">
+          <div className="mt-16 max-w-xl lg:mt-20">
             <p className="text-sm font-bold uppercase tracking-normal text-emerald-300">Secure Access</p>
-            <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
+            <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-5xl">
               Crop monitoring, prediction, and decision support in one workspace.
             </h1>
             <p className="mt-4 text-base leading-7 text-slate-200">
@@ -110,8 +110,8 @@ export default function AuthPage({ onBack, onAuthenticated }) {
           </a>
         </section>
 
-        <section className="flex items-center justify-center">
-          <div className="w-full max-w-md rounded-lg border border-emerald-100 bg-white p-5 text-slate-950 shadow-2xl shadow-emerald-950/10 sm:p-6">
+        <section className="order-1 flex items-center justify-center lg:order-2">
+          <div className="w-full max-w-lg rounded-lg border border-emerald-100 bg-white p-5 text-slate-950 shadow-2xl shadow-emerald-950/10 sm:p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white">
                 <ActiveIcon className="h-5 w-5" aria-hidden="true" />
@@ -141,9 +141,9 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               </button>
             </div>
 
-            <form className="mt-5 space-y-4" onSubmit={submit}>
+            <form className="mt-5 grid gap-4" onSubmit={submit}>
               {mode === "register" ? (
-                <>
+                <div className="grid gap-4 sm:grid-cols-2">
                   <label className="block">
                     <span className="text-sm font-semibold text-slate-700">Full name</span>
                     <input
@@ -161,7 +161,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                       className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
                     />
                   </label>
-                </>
+                </div>
               ) : null}
 
               <label className="block">

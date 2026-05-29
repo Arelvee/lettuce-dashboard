@@ -1,20 +1,48 @@
-import { MapPin, Save, UserRound } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, Mail, MapPin, Save, ShieldCheck, UserRound, Wifi } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const fields = [
-  ["full_name", "Full name"],
-  ["role", "Role"],
-  ["institution", "Institution"],
-  ["farm_name", "Farm name"],
-  ["phone", "Phone"],
-  ["esp32_ip", "ESP32 IP address"],
-  ["latitude", "Farm latitude"],
-  ["longitude", "Farm longitude"],
+const sections = [
+  {
+    title: "Researcher",
+    detail: "Identity used for dashboard access and local profile records.",
+    icon: UserRound,
+    fields: [
+      ["full_name", "Full name", "text"],
+      ["role", "Role", "text"],
+      ["institution", "Institution", "text"],
+      ["phone", "Phone", "tel"],
+    ],
+  },
+  {
+    title: "Farm Location",
+    detail: "Fallback address and coordinates for maps and device-location checks.",
+    icon: MapPin,
+    fields: [
+      ["farm_name", "Farm name", "text", "sm:col-span-2"],
+      ["location_address", "Farm address", "text", "sm:col-span-2"],
+      ["latitude", "Farm latitude", "number"],
+      ["longitude", "Farm longitude", "number"],
+    ],
+  },
+  {
+    title: "Device",
+    detail: "ESP32 endpoint used when browser geolocation or public lookup is unavailable.",
+    icon: Wifi,
+    fields: [["esp32_ip", "ESP32 IP address", "text"]],
+  },
 ];
 
 export default function ProfilePage({ profile, session, onSave }) {
   const [draft, setDraft] = useState(profile || {});
   const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const email = session?.user?.email || draft.email || "No email saved";
+  const verified = Boolean(session?.user?.email_confirmed_at);
+
+  useEffect(() => {
+    setDraft(profile || {});
+  }, [profile]);
 
   function updateField(key, value) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -23,79 +51,122 @@ export default function ProfilePage({ profile, session, onSave }) {
 
   async function submit(event) {
     event.preventDefault();
-    await onSave(draft);
-    setSaved(true);
+    setBusy(true);
+    setError("");
+    try {
+      await onSave(draft);
+      setSaved(true);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Unable to save profile.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-      <section className="surface p-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-950 text-white dark:bg-white dark:text-slate-950">
-            <UserRound className="h-6 w-6" aria-hidden="true" />
+    <section className="surface overflow-hidden">
+      <div className="border-b border-slate-200/80 p-5 dark:border-white/10 sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-white dark:bg-white dark:text-slate-950">
+              <UserRound className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="section-title">Profile</p>
+              <h1 className="mt-1 text-2xl font-bold text-slate-950 dark:text-white">Account and farm settings</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                Keep the researcher profile, farm fallback location, and ESP32 endpoint aligned with the dashboard.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="section-title">Profile</p>
-            <h1 className="text-2xl font-bold text-slate-950 dark:text-white">{draft.full_name || "Research User"}</h1>
+
+          <div
+            className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+              verified
+                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
+                : "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-200"
+            }`}
+          >
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            {verified ? "Email verified" : "Verification pending"}
           </div>
         </div>
 
-        <div className="mt-6 space-y-4 text-sm">
-          <div>
-            <p className="font-semibold text-slate-500 dark:text-slate-400">Email</p>
-            <p className="mt-1 break-all text-slate-950 dark:text-white">{session?.user?.email || draft.email}</p>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <Mail className="h-5 w-5 text-sky-600 dark:text-sky-300" aria-hidden="true" />
+            <p className="mt-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Email</p>
+            <p className="mt-1 break-all text-sm font-bold text-slate-950 dark:text-white">{email}</p>
           </div>
-          <div>
-            <p className="font-semibold text-slate-500 dark:text-slate-400">Account status</p>
-            <p className="mt-1 text-slate-950 dark:text-white">
-              {session?.user?.email_confirmed_at ? "Email verified" : "Email verification pending"}
-            </p>
-          </div>
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-400/25 dark:bg-emerald-400/10">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
             <MapPin className="h-5 w-5 text-emerald-700 dark:text-emerald-300" aria-hidden="true" />
-            <p className="mt-2 font-semibold text-emerald-900 dark:text-emerald-200">Location source</p>
-            <p className="mt-1 text-emerald-800 dark:text-emerald-200/80">
-              Saved coordinates are used as the farm fallback when the ESP32 IP is private or
-              browser geolocation is unavailable.
-            </p>
+            <p className="mt-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Farm</p>
+            <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{draft.farm_name || "Farm name pending"}</p>
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <Wifi className="h-5 w-5 text-amber-600 dark:text-amber-300" aria-hidden="true" />
+            <p className="mt-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">ESP32</p>
+            <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{draft.esp32_ip || "IP address pending"}</p>
           </div>
         </div>
-      </section>
+      </div>
 
-      <section className="surface p-5">
-        <div>
-          <p className="section-title">Edit Profile</p>
-          <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Researcher and farm details</h2>
-        </div>
+      <form className="grid gap-6 p-5 sm:p-6" onSubmit={submit}>
+        {sections.map((section) => (
+          <section
+            key={section.title}
+            className="grid gap-4 border-b border-slate-200/80 pb-6 last:border-b-0 last:pb-0 dark:border-white/10 lg:grid-cols-[14rem_1fr]"
+          >
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
+                  <section.icon className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <h2 className="text-lg font-bold text-slate-950 dark:text-white">{section.title}</h2>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{section.detail}</p>
+            </div>
 
-        <form className="mt-5 grid gap-4 sm:grid-cols-2" onSubmit={submit}>
-          {fields.map(([key, label]) => (
-            <label key={key} className={key === "farm_name" ? "sm:col-span-2" : ""}>
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</span>
-              <input
-                value={draft[key] || ""}
-                onChange={(event) => updateField(key, event.target.value)}
-                className="focus-ring mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-slate-950 dark:border-white/10 dark:bg-slate-950 dark:text-white"
-              />
-            </label>
-          ))}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {section.fields.map(([key, label, type, span]) => (
+                <label key={key} className={span || ""}>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</span>
+                  <input
+                    type={type}
+                    step={type === "number" ? "any" : undefined}
+                    value={draft[key] || ""}
+                    onChange={(event) => updateField(key, event.target.value)}
+                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-slate-950 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                  />
+                </label>
+              ))}
+            </div>
+          </section>
+        ))}
 
-          <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
-            {saved ? (
+        <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+            {error ? (
+              <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">{error}</p>
+            ) : saved ? (
               <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Profile saved.</p>
             ) : (
-              <p className="text-sm text-slate-500 dark:text-slate-400">Changes are saved locally and synced to Supabase Auth metadata when available.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Changes save locally and sync to Supabase Auth metadata when available.
+              </p>
             )}
-            <button
-              type="submit"
-              className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
-            >
-              <Save className="h-4 w-4" aria-hidden="true" />
-              Save profile
-            </button>
           </div>
-        </form>
-      </section>
-    </div>
+          <button
+            type="submit"
+            disabled={busy}
+            className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+          >
+            <Save className="h-4 w-4" aria-hidden="true" />
+            {busy ? "Saving..." : "Save profile"}
+          </button>
+        </div>
+      </form>
+    </section>
   );
 }

@@ -58,19 +58,129 @@ select {
 
 @layer utilities {
   .logo-mark {
+    background-image: radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.85), transparent 28%);
+  }
+
+  .logo-mark-bare {
+    background-image: none;
+  }
+
+  .logo-mark-bare .logo-glow,
+  .logo-mark-bare .logo-orbit,
+  .logo-mark-bare .logo-spark {
+    display: none;
+  }
+
+  .logo-mark-animated {
     animation: logoFloat 4.5s ease-in-out infinite;
   }
 
-  .logo-circuit {
-    animation: logoCircuit 8s linear infinite;
+  .logo-mark-loading {
+    animation: logoFloat 2.8s ease-in-out infinite;
   }
 
-  .logo-leaf {
-    animation: logoLeaf 2.8s ease-in-out infinite;
+  .logo-glow {
+    position: absolute;
+    inset: -55%;
+    background: conic-gradient(from 90deg, transparent 0deg, rgba(167, 243, 208, 0.18) 70deg, rgba(56, 189, 248, 0.32) 105deg, transparent 150deg);
+    opacity: 0.28;
+    animation: logoSheen 5.4s linear infinite;
   }
 
-  .logo-cap {
-    animation: logoCap 3.6s ease-in-out infinite;
+  .logo-orbit {
+    position: absolute;
+    inset: 9%;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 9999px;
+    opacity: 0.72;
+    animation: logoOrbit 6.8s linear infinite;
+  }
+
+  .logo-orbit::before,
+  .logo-orbit::after {
+    position: absolute;
+    content: "";
+    height: 0.42rem;
+    width: 0.42rem;
+    border-radius: 9999px;
+    background: #a7f3d0;
+    box-shadow: 0 0 14px rgba(52, 211, 153, 0.78);
+  }
+
+  .logo-orbit::before {
+    left: 7%;
+    top: 12%;
+  }
+
+  .logo-orbit::after {
+    bottom: 9%;
+    right: 10%;
+  }
+
+  .logo-image {
+    filter: drop-shadow(0 8px 12px rgba(8, 47, 73, 0.16));
+  }
+
+  .logo-mark-loading .logo-glow {
+    opacity: 0.62;
+    animation-duration: 2.6s;
+  }
+
+  .logo-mark-loading .logo-orbit {
+    border-color: rgba(110, 231, 183, 0.75);
+    animation-duration: 2.4s;
+  }
+
+  .logo-mark-loading .logo-image {
+    animation: logoImagePulse 1.9s ease-in-out infinite;
+  }
+
+  .logo-spark {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.72) 45%, transparent 58%);
+    opacity: 0;
+    transform: translateX(-120%);
+    animation: logoSpark 4.2s ease-in-out infinite;
+  }
+
+  .brand-loader-field {
+    position: relative;
+    display: flex;
+    height: 11rem;
+    width: 11rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-loader-field::before {
+    position: absolute;
+    inset: 0.65rem;
+    content: "";
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    border-radius: 1.25rem;
+    transform: rotate(45deg);
+    animation: loaderFrame 5.6s linear infinite;
+  }
+
+  .brand-loader-node {
+    position: absolute;
+    z-index: 0;
+    height: 0.72rem;
+    width: 0.72rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #a3e635, #14b8a6);
+    box-shadow: 0 0 18px rgba(45, 212, 191, 0.7);
+    animation: loaderNodePulse 1.8s ease-in-out infinite;
+  }
+
+  .brand-loader-branch {
+    position: absolute;
+    z-index: 0;
+    height: 2px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.78), transparent);
+    animation: loaderBranchGlow 1.8s ease-in-out infinite;
   }
 
   .phone-float {
@@ -91,18 +201,37 @@ select {
   50% { transform: translateY(-2px); }
 }
 
-@keyframes logoCircuit {
+@keyframes logoSheen {
   to { transform: rotate(360deg); }
 }
 
-@keyframes logoLeaf {
-  0%, 100% { transform: scale(1) rotate(-2deg); }
-  50% { transform: scale(1.08) rotate(3deg); }
+@keyframes logoOrbit {
+  to { transform: rotate(360deg); }
 }
 
-@keyframes logoCap {
-  0%, 100% { transform: translateY(0) rotate(-4deg); }
-  50% { transform: translateY(-2px) rotate(4deg); }
+@keyframes logoImagePulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 8px 12px rgba(8, 47, 73, 0.16)); }
+  50% { transform: scale(1.06); filter: drop-shadow(0 0 18px rgba(52, 211, 153, 0.45)); }
+}
+
+@keyframes logoSpark {
+  0%, 38%, 100% { opacity: 0; transform: translateX(-120%); }
+  48% { opacity: 0.75; }
+  62% { opacity: 0; transform: translateX(120%); }
+}
+
+@keyframes loaderFrame {
+  to { transform: rotate(405deg); }
+}
+
+@keyframes loaderNodePulse {
+  0%, 100% { opacity: 0.42; transform: scale(0.82); }
+  50% { opacity: 1; transform: scale(1.18); }
+}
+
+@keyframes loaderBranchGlow {
+  0%, 100% { opacity: 0.28; }
+  50% { opacity: 0.95; }
 }
 
 @keyframes phoneFloat {
@@ -118,4 +247,21 @@ select {
 @keyframes scanLine {
   0%, 100% { transform: translateY(0); opacity: 0.28; }
   50% { transform: translateY(8.5rem); opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark-animated,
+  .logo-mark-loading,
+  .logo-glow,
+  .logo-orbit,
+  .logo-image,
+  .logo-spark,
+  .brand-loader-field::before,
+  .brand-loader-node,
+  .brand-loader-branch,
+  .phone-float,
+  .signal-wave,
+  .scan-line {
+    animation: none !important;
+  }
 }

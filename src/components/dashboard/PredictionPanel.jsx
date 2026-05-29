@@ -1,33 +1,49 @@
 import { Brain, Gauge, Tags } from "lucide-react";
-import { formatDateTime, formatPercent, normalizeJson } from "../../utils/format";
-import { getPredictionStageInfo, getYieldCountInfo, normalizeProbabilityRows } from "../../utils/prediction";
+import { formatDateTime, formatNumber, formatPercent, normalizeJson } from "../../utils/format";
+import {
+  getBatchAgeDays,
+  getPredictionConfidence,
+  getPredictionStageInfo,
+  getYieldCountInfo,
+  normalizeProbabilityRows,
+} from "../../utils/prediction";
 import StatusBadge from "../common/StatusBadge";
 
-export default function PredictionPanel({ prediction }) {
-  const probabilities = normalizeJson(prediction?.probabilities_json, {});
+export default function PredictionPanel({ prediction, stalePrediction }) {
+  const displayPrediction = prediction || stalePrediction;
+  const isStale = !prediction && Boolean(stalePrediction);
+  const probabilities = normalizeJson(displayPrediction?.probabilities_json, {});
   const probabilityRows = normalizeProbabilityRows(probabilities);
-  const stageInfo = getPredictionStageInfo(prediction);
-  const yieldInfo = getYieldCountInfo(prediction);
+  const stageInfo = getPredictionStageInfo(displayPrediction);
+  const yieldInfo = getYieldCountInfo(displayPrediction);
+  const confidence = getPredictionConfidence(displayPrediction);
+  const ageDays = getBatchAgeDays(displayPrediction);
 
   return (
     <section className="surface overflow-hidden">
       <div className="flex flex-col gap-4 border-b border-slate-200 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5 dark:border-white/10">
         <div>
-          <p className="section-title">Latest Prediction</p>
+          <p className="section-title">{isStale ? "Last Prediction" : "Latest Prediction"}</p>
           <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-            {stageInfo.label}
+            {isStale ? "Stale ML Output" : stageInfo.label}
           </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            {prediction
-              ? `${stageInfo.classId === null ? "Classifier label" : `Class ${stageInfo.classId}`} / ${formatDateTime(prediction.timestamp)}`
+            {displayPrediction
+              ? `${stageInfo.label} / ${formatDateTime(displayPrediction.timestamp)}`
               : "Requires sensor window from BiLSTM-Attention features."}
           </p>
         </div>
-        <StatusBadge tone={Number(prediction?.stage_probability || 0) >= 0.75 ? "emerald" : "amber"}>
+        <StatusBadge tone={isStale ? "amber" : Number(confidence || 0) >= 0.75 ? "emerald" : "amber"}>
           <Brain className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-          {formatPercent(prediction?.stage_probability)}
+          {isStale ? "stale" : confidence === null ? "--" : formatPercent(confidence)}
         </StatusBadge>
       </div>
+
+      {isStale ? (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 sm:px-5 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-200">
+          This ML row is older than the latest sensor data. Run the simulator until a fresh 10-sample window is uploaded.
+        </div>
+      ) : null}
 
       <div className="grid sm:grid-cols-2 sm:divide-x sm:divide-slate-200 dark:divide-white/10">
         <div className="p-4 sm:p-5">
@@ -49,10 +65,13 @@ export default function PredictionPanel({ prediction }) {
             Prediction Window
           </div>
           <p className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
-            {prediction?.window_start ? formatDateTime(prediction.window_start) : "--"}
+            {displayPrediction?.window_start ? formatDateTime(displayPrediction.window_start) : "--"}
           </p>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            to {prediction?.window_end ? formatDateTime(prediction.window_end) : "--"}
+            to {displayPrediction?.window_end ? formatDateTime(displayPrediction.window_end) : "--"}
+          </p>
+          <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+            Age {ageDays === null ? "--" : `${formatNumber(ageDays, 1)} days`}
           </p>
         </div>
       </div>

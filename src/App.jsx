@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import BrandLoader from "./components/common/BrandLoader";
 import AppShell from "./components/layout/AppShell";
 import MainNav from "./components/layout/MainNav";
 import AuthPage from "./pages/AuthPage";
@@ -28,9 +29,11 @@ export default function App() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-white">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-emerald-400" />
-      </main>
+      <BrandLoader
+        fullScreen
+        message="Preparing Lettuce Predict"
+        detail="Checking session and farm profile"
+      />
     );
   }
 

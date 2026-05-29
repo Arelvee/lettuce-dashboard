@@ -1,4 +1,4 @@
-import { Building2, LocateFixed, Map, MapPinned, Mountain, Network, Router, Satellite, Search } from "lucide-react";
+import { Building2, LocateFixed, Map, MapPinned, Mountain, Navigation, Network, Router, Satellite, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import StatusBadge from "../common/StatusBadge";
 
@@ -6,6 +6,7 @@ const DEFAULT_LOCATION = {
   latitude: 14.5869,
   longitude: 121.0614,
   label: "Manila / nearby farm fallback",
+  address: "Manila, Metro Manila, Philippines",
   source: "default",
 };
 
@@ -20,20 +21,43 @@ function isPrivateIp(ip) {
 }
 
 const mapModes = [
-  { key: "map", label: "Map", icon: Map },
-  { key: "satellite", label: "Satellite", icon: Satellite },
-  { key: "terrain", label: "Terrain", icon: Mountain },
-  { key: "3d", label: "3D View", icon: Building2 },
+  { key: "map", label: "Map", icon: Map, detail: "Street basemap" },
+  { key: "satellite", label: "Satellite", icon: Satellite, detail: "World imagery" },
+  { key: "terrain", label: "Terrain", icon: Mountain, detail: "Topographic terrain" },
+  { key: "3d", label: "3D View", icon: Building2, detail: "3D buildings" },
 ];
 
-function embedUrl(latitude, longitude, mode) {
+const mapServices = {
+  map: "World_Street_Map",
+  satellite: "World_Imagery",
+  terrain: "World_Topo_Map",
+};
+
+function fixedCoordinate(value) {
+  return Number(value).toFixed(6);
+}
+
+function mapImageUrl(latitude, longitude, mode) {
+  const lat = Number(latitude);
+  const lon = Number(longitude);
+  const delta = mode === "terrain" ? 0.035 : 0.018;
+  const bbox = [lon - delta, lat - delta, lon + delta, lat + delta].map((value) => value.toFixed(6)).join(",");
+  const service = mapServices[mode] || mapServices.map;
+  return `https://services.arcgisonline.com/ArcGIS/rest/services/${service}/MapServer/export?bbox=${bbox}&bboxSR=4326&imageSR=3857&size=1280,720&format=png32&transparent=false&f=image`;
+}
+
+function threeDUrl(latitude, longitude) {
   const lat = Number(latitude).toFixed(6);
   const lon = Number(longitude).toFixed(6);
-  if (mode === "3d") {
-    return `https://osmbuildings.org/?lat=${lat}&lon=${lon}&zoom=17&tilt=45&rotation=25`;
-  }
-  const mapType = mode === "satellite" ? "k" : mode === "terrain" ? "p" : "m";
-  return `https://maps.google.com/maps?q=${lat},${lon}&z=17&t=${mapType}&output=embed`;
+  return `https://osmbuildings.org/?lat=${lat}&lon=${lon}&zoom=17&tilt=45&rotation=25`;
+}
+
+function addressFromPayload(payload) {
+  return [
+    payload.locality || payload.city,
+    payload.principalSubdivision,
+    payload.countryName,
+  ].filter(Boolean).join(", ");
 }
 
 export default function LocationPanel({ profile, latestReading }) {
@@ -43,6 +67,7 @@ export default function LocationPanel({ profile, latestReading }) {
         latitude: Number(profile.latitude),
         longitude: Number(profile.longitude),
         label: profile.farm_name || "Saved farm location",
+        address: profile.location_address || profile.address || profile.farm_name || "Saved farm location",
         source: "profile",
       };
     }
@@ -54,6 +79,37 @@ export default function LocationPanel({ profile, latestReading }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [mapMode, setMapMode] = useState("map");
+
+  useEffect(() => {
+    setLocation(initialLocation);
+  }, [initialLocation]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function resolveAddress() {
+      try {
+        const response = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(location.latitude)}&longitude=${encodeURIComponent(location.longitude)}&localityLanguage=en`,
+        );
+        const payload = await response.json();
+        const address = addressFromPayload(payload);
+        if (!cancelled && address) {
+          setLocation((current) => (
+            Number(current.latitude) === Number(location.latitude) &&
+            Number(current.longitude) === Number(location.longitude)
+              ? { ...current, address }
+              : current
+          ));
+        }
+      } catch {
+        // Keep the saved label if reverse-geocoding is unavailable.
+      }
+    }
+    resolveAddress();
+    return () => {
+      cancelled = true;
+    };
+  }, [location.latitude, location.longitude]);
 
   const locateDevice = useCallback((mode = "manual") => {
     setBusy(true);
@@ -69,6 +125,7 @@ export default function LocationPanel({ profile, latestReading }) {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           label: "Device location",
+          address: "Resolving address...",
           source: "device",
         });
         setMessage(mode === "auto" ? "Device location detected automatically." : "Device location refreshed.");
@@ -110,6 +167,7 @@ export default function LocationPanel({ profile, latestReading }) {
         latitude: Number(payload.latitude),
         longitude: Number(payload.longitude),
         label: payload.city ? `${payload.city}, ${payload.country_name}` : "ESP32 public IP location",
+        address: addressFromPayload(payload) || "ESP32 public IP location",
         source: "ip",
       });
       setMessage("ESP32 public IP location resolved.");
@@ -128,7 +186,7 @@ export default function LocationPanel({ profile, latestReading }) {
           <p className="section-title">Farm Location</p>
           <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Device location map</h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            {location.label}
+            {location.address || location.label}
           </p>
         </div>
         <StatusBadge tone={location.source === "device" ? "emerald" : location.source === "ip" ? "sky" : "amber"}>
@@ -136,20 +194,25 @@ export default function LocationPanel({ profile, latestReading }) {
         </StatusBadge>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-          {mapModes.map(({ key, label, icon: Icon }) => (
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {mapModes.map(({ key, label, icon: Icon, detail }) => (
             <button
               key={key}
               type="button"
               onClick={() => setMapMode(key)}
-              className={`focus-ring inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-bold transition ${
+              className={`focus-ring inline-flex min-h-12 items-center justify-start gap-2 rounded-lg border px-3 py-2 text-left text-sm font-bold transition ${
                 mapMode === key
                   ? "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950"
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
               }`}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
-              {label}
+              <span>
+                <span className="block">{label}</span>
+                <span className={`block text-xs font-semibold ${mapMode === key ? "text-white/70 dark:text-slate-600" : "text-slate-400"}`}>
+                  {detail}
+                </span>
+              </span>
             </button>
           ))}
         </div>
@@ -191,14 +254,23 @@ export default function LocationPanel({ profile, latestReading }) {
               Refresh device location
             </button>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-950/80">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Latitude</p>
-                <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{Number(location.latitude).toFixed(5)}</p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-950/80">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Longitude</p>
-                <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{Number(location.longitude).toFixed(5)}</p>
+            <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-950/80">
+              <div className="flex items-start gap-3">
+                <Navigation className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Location address</p>
+                  <p className="mt-1 text-sm font-bold leading-6 text-slate-950 dark:text-white">
+                    {location.address || location.label}
+                  </p>
+                  <a
+                    href={`https://www.openstreetmap.org/?mlat=${fixedCoordinate(location.latitude)}&mlon=${fixedCoordinate(location.longitude)}#map=17/${fixedCoordinate(location.latitude)}/${fixedCoordinate(location.longitude)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex text-xs font-bold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-200"
+                  >
+                    Open map reference
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -217,23 +289,38 @@ export default function LocationPanel({ profile, latestReading }) {
           </div>
         </div>
 
-        <div className="flex min-h-[660px] flex-col border-t border-slate-200 bg-slate-100 lg:border-l lg:border-t-0 dark:border-white/10 dark:bg-slate-950">
-          <div className="relative min-h-[600px] flex-1 overflow-hidden bg-slate-200 dark:bg-slate-950">
-            <iframe
-              key={`${mapMode}-${location.latitude}-${location.longitude}`}
-              title={`${mapMode} device location map`}
-              src={embedUrl(location.latitude, location.longitude, mapMode)}
-              className="h-full min-h-[600px] w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+        <div className="flex min-h-[520px] flex-col border-t border-slate-200 bg-slate-100 lg:border-l lg:border-t-0 dark:border-white/10 dark:bg-slate-950">
+          <div className="relative min-h-[480px] flex-1 overflow-hidden bg-slate-200 dark:bg-slate-950">
+            {mapMode === "3d" ? (
+              <iframe
+                key={`${mapMode}-${location.latitude}-${location.longitude}`}
+                title="3D device location map"
+                src={threeDUrl(location.latitude, location.longitude)}
+                className="h-full min-h-[480px] w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            ) : (
+              <img
+                key={`${mapMode}-${location.latitude}-${location.longitude}`}
+                src={mapImageUrl(location.latitude, location.longitude, mapMode)}
+                alt={`${mapModes.find((mode) => mode.key === mapMode)?.label} map for ${location.address || location.label}`}
+                className="h-full min-h-[480px] w-full object-cover"
+              />
+            )}
+            <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-emerald-600 text-white shadow-2xl shadow-slate-950/30">
+                <MapPinned className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <div className="h-5 w-1 rounded-full bg-emerald-600 shadow-lg" />
+            </div>
             <div className="pointer-events-none absolute left-4 top-4 rounded-lg border border-white/60 bg-white/90 px-3 py-2 text-sm shadow-soft backdrop-blur dark:border-white/10 dark:bg-slate-950/90">
               <div className="flex items-center gap-2 font-bold text-slate-950 dark:text-white">
                 <MapPinned className="h-4 w-4 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
                 {mapModes.find((mode) => mode.key === mapMode)?.label}
               </div>
               <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                {Number(location.latitude).toFixed(5)}, {Number(location.longitude).toFixed(5)}
+                {location.address || location.label}
               </p>
             </div>
           </div>
@@ -241,10 +328,10 @@ export default function LocationPanel({ profile, latestReading }) {
           <div className="flex flex-col gap-1 border-t border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
             <div className="flex items-center gap-2">
               <MapPinned className="h-4 w-4 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
-              {location.label}
+              {location.address || location.label}
             </div>
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              {mapMode === "3d" ? "3D building view inside dashboard" : `${mapModes.find((mode) => mode.key === mapMode)?.label} view inside dashboard`}
+              {mapMode === "terrain" ? "Topographic terrain with the same farm pin" : mapMode === "3d" ? "3D building view with the same farm pin" : `${mapModes.find((mode) => mode.key === mapMode)?.label} view with the same farm pin`}
             </span>
           </div>
         </div>

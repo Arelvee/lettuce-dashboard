@@ -1,6 +1,7 @@
 import { Clock3, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { REFRESH_SECONDS } from "../../config/supabase";
 import { formatDateTime } from "../../utils/format";
+import ThesisLogo from "../common/ThesisLogo";
 import StatusBadge from "../common/StatusBadge";
 
 export default function DashboardHeader({
@@ -47,8 +48,12 @@ export default function DashboardHeader({
             disabled={loading}
             title="Refresh dashboard data"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
-            Refresh
+            {loading ? (
+              <ThesisLogo size="xs" animated={false} loading decorative className="shadow-none" />
+            ) : (
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            )}
+            {loading ? "Syncing" : "Refresh"}
           </button>
         </div>
       </div>

@@ -4,7 +4,6 @@ import {
   BrainCircuit,
   CheckCircle2,
   Cpu,
-  Leaf,
   LineChart,
   RadioTower,
   ShieldCheck,
@@ -48,15 +47,17 @@ export default function LandingPage({ onGetStarted }) {
       >
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-10 pt-24 text-white sm:px-6 lg:px-8">
           <div className="max-w-4xl">
-            <div className="mb-6 inline-flex rounded-lg border border-white/15 bg-white/10 px-3 py-2 backdrop-blur">
-              <ThesisLogo inverse />
+            <div className="flex max-w-5xl flex-col gap-5 sm:flex-row sm:items-center">
+              <ThesisLogo inverse size="hero" bare className="h-28 w-28 sm:h-32 sm:w-32" />
+              <div className="rounded-lg border border-white/15 bg-slate-950/45 p-4 shadow-2xl shadow-slate-950/30 backdrop-blur-md sm:p-5">
+                <p className="text-xs font-bold uppercase text-emerald-200">Thesis Predictive System</p>
+                <p className="mt-2 max-w-3xl bg-gradient-to-r from-emerald-200 via-white to-sky-200 bg-clip-text text-2xl font-black leading-tight text-transparent sm:text-3xl lg:text-4xl">
+                  Crop Yield Prediction Model for Indoor Lettuce Vertical Farm
+                </p>
+              </div>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-sm font-semibold backdrop-blur">
-              <Leaf className="h-4 w-4 text-emerald-300" aria-hidden="true" />
-              Master of Science in Electronics Engineering
-            </div>
-            <h1 className="mt-5 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-              Crop Yield Prediction Model for Indoor Lettuce Vertical Farm
+            <h1 className="mt-8 max-w-4xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+              Smarter harvest decisions from real-time lettuce intelligence.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
               A thesis system integrating environmental sensing, Daubechies wavelet preprocessing,
@@ -91,6 +92,10 @@ export default function LandingPage({ onGetStarted }) {
               </div>
             ))}
           </div>
+
+          <p className="text-xs font-semibold uppercase text-white/65">
+            Master of Science in Electronics Engineering / Batangas State University
+          </p>
         </div>
         <a
           href="https://commons.wikimedia.org/wiki/File:Lettuce_in_Vertical_Farm.jpg"

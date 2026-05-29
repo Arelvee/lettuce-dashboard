@@ -1,6 +1,6 @@
 import { formatNumber } from "../../utils/format";
 
-export default function MetricCard({ icon: Icon, label, value, unit, detail, tone = "emerald" }) {
+export default function MetricCard({ icon: Icon, label, value, unit, detail, tone = "emerald", onClick }) {
   const toneMap = {
     emerald: {
       icon: "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300",
@@ -24,19 +24,26 @@ export default function MetricCard({ icon: Icon, label, value, unit, detail, ton
     },
   };
   const toneClasses = toneMap[tone] || toneMap.emerald;
+  const Component = onClick ? "button" : "article";
 
   return (
-    <article className="surface relative min-h-[124px] overflow-hidden p-4">
+    <Component
+      type={onClick ? "button" : undefined}
+      onClick={onClick}
+      className={`surface relative flex min-h-[136px] w-full overflow-hidden p-4 text-left ${
+        onClick ? "focus-ring cursor-pointer transition hover:-translate-y-0.5 hover:shadow-lg" : ""
+      }`}
+    >
       <div className={`absolute left-0 top-4 h-10 w-1 rounded-r-full ${toneClasses.accent}`} />
-      <div className="flex h-full flex-col justify-between gap-4 pl-2">
+      <div className="flex min-w-0 flex-1 flex-col justify-between gap-4 pl-2">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{label}</p>
             <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="text-2xl font-bold text-slate-950 dark:text-white">
-              {typeof value === "number" ? formatNumber(value, value >= 100 ? 0 : 1) : value || "--"}
-            </span>
-            {unit ? <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{unit}</span> : null}
+              <span className="break-words text-2xl font-bold leading-tight text-slate-950 dark:text-white">
+                {typeof value === "number" ? formatNumber(value, value >= 100 ? 0 : 1) : value || "--"}
+              </span>
+              {unit ? <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{unit}</span> : null}
             </div>
           </div>
           {Icon ? (
@@ -45,8 +52,8 @@ export default function MetricCard({ icon: Icon, label, value, unit, detail, ton
             </div>
           ) : null}
         </div>
-        {detail ? <p className="text-sm leading-5 text-slate-500 dark:text-slate-400">{detail}</p> : null}
+        {detail ? <p className="max-h-10 overflow-hidden text-sm leading-5 text-slate-500 dark:text-slate-400">{detail}</p> : null}
       </div>
-    </article>
+    </Component>
   );
 }

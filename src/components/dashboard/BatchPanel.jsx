@@ -1,8 +1,8 @@
 import { CalendarDays, CheckCircle2, History, Loader2, Plus, Sprout } from "lucide-react";
 import { useMemo, useState } from "react";
 import { createCropBatch, updateCropBatch } from "../../services/supabaseRest";
-import { formatDateTime } from "../../utils/format";
-import { formatYieldCount, getPredictionStageInfo } from "../../utils/prediction";
+import { formatDateTime, formatNumber } from "../../utils/format";
+import { formatYieldCount, getBatchAgeDays, getPredictionStageInfo } from "../../utils/prediction";
 import StatusBadge from "../common/StatusBadge";
 
 const STORAGE_KEY = "lettuce-batch-tracker";
@@ -71,7 +71,7 @@ function formatDate(value) {
   }).format(new Date(value));
 }
 
-export default function BatchPanel({ cropBatches = [], isMock, latestPrediction, onRefresh }) {
+export default function BatchPanel({ cropBatches = [], isMock, latestReading, latestPrediction, onRefresh }) {
   const initialState = useMemo(readStoredBatches, []);
   const [localActiveBatch, setLocalActiveBatch] = useState(initialState.activeBatch);
   const [localHistory, setLocalHistory] = useState(initialState.history);
@@ -98,7 +98,8 @@ export default function BatchPanel({ cropBatches = [], isMock, latestPrediction,
   );
   const nextNumber = highestNumber + 1;
   const stageInfo = getPredictionStageInfo(latestPrediction);
-  const ageDays = daysFrom(activeBatch?.startedAt);
+  const realtimeAgeDays = getBatchAgeDays(latestPrediction, latestReading);
+  const ageDays = realtimeAgeDays ?? daysFrom(activeBatch?.startedAt);
   const hasPrediction = Boolean(latestPrediction);
 
   function persistLocal(nextActiveBatch, nextHistory) {
@@ -209,7 +210,9 @@ export default function BatchPanel({ cropBatches = [], isMock, latestPrediction,
             <div className="panel-muted p-3">
               <CheckCircle2 className="h-4 w-4 text-sky-600 dark:text-sky-300" aria-hidden="true" />
               <p className="mt-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Crop Age</p>
-              <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{ageDays} days</p>
+              <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">
+                {formatNumber(ageDays, realtimeAgeDays === null ? 0 : 1)} days
+              </p>
             </div>
           </div>
 

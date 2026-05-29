@@ -22,6 +22,7 @@ function normalizeProfile(session, localProfile = {}) {
     institution: metadata.institution || localProfile.institution || "Batangas State University",
     farm_name: metadata.farm_name || localProfile.farm_name || "Indoor Lettuce Vertical Farm",
     esp32_ip: metadata.esp32_ip || localProfile.esp32_ip || import.meta.env.VITE_ESP32_IP || "192.168.1.9",
+    location_address: metadata.location_address || localProfile.location_address || "",
     latitude: metadata.latitude || localProfile.latitude || "",
     longitude: metadata.longitude || localProfile.longitude || "",
     phone: metadata.phone || localProfile.phone || "",
@@ -105,4 +106,3 @@ export function useAuth() {
 
   return value;
 }
-
