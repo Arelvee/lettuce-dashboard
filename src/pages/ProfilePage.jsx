@@ -68,7 +68,7 @@ export default function ProfilePage({ profile, session, onSave }) {
       <div className="border-b border-slate-200/80 p-5 dark:border-white/10 sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-white dark:bg-white dark:text-slate-950">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-slate-950 to-emerald-900 text-white shadow-lg shadow-emerald-950/15 dark:from-white dark:to-emerald-100 dark:text-slate-950">
               <UserRound className="h-6 w-6" aria-hidden="true" />
             </div>
             <div>
@@ -93,17 +93,17 @@ export default function ProfilePage({ profile, session, onSave }) {
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-3">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="panel-muted p-4">
             <Mail className="h-5 w-5 text-sky-600 dark:text-sky-300" aria-hidden="true" />
             <p className="mt-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Email</p>
             <p className="mt-1 break-all text-sm font-bold text-slate-950 dark:text-white">{email}</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="panel-muted p-4">
             <MapPin className="h-5 w-5 text-emerald-700 dark:text-emerald-300" aria-hidden="true" />
             <p className="mt-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Farm</p>
             <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{draft.farm_name || "Farm name pending"}</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+          <div className="panel-muted p-4">
             <Wifi className="h-5 w-5 text-amber-600 dark:text-amber-300" aria-hidden="true" />
             <p className="mt-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">ESP32</p>
             <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{draft.esp32_ip || "IP address pending"}</p>
@@ -136,7 +136,7 @@ export default function ProfilePage({ profile, session, onSave }) {
                     step={type === "number" ? "any" : undefined}
                     value={draft[key] || ""}
                     onChange={(event) => updateField(key, event.target.value)}
-                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-slate-950 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                    className="field-control"
                   />
                 </label>
               ))}
@@ -144,7 +144,7 @@ export default function ProfilePage({ profile, session, onSave }) {
           </section>
         ))}
 
-        <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="panel-muted flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
             {error ? (
@@ -160,7 +160,7 @@ export default function ProfilePage({ profile, session, onSave }) {
           <button
             type="submit"
             disabled={busy}
-            className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+            className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-slate-950 to-emerald-900 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-950/15 transition hover:from-emerald-900 hover:to-teal-800 disabled:cursor-wait disabled:opacity-70 dark:from-white dark:to-emerald-100 dark:text-slate-950 dark:hover:from-emerald-50 dark:hover:to-cyan-100"
           >
             <Save className="h-4 w-4" aria-hidden="true" />
             {busy ? "Saving..." : "Save profile"}

@@ -46,7 +46,7 @@ export default function BrandLoader({
   if (!fullScreen) return loader;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-slate-950 dark:bg-slate-950 dark:text-white">
+    <main className="flex min-h-screen items-center justify-center px-4 text-slate-950 dark:text-white">
       {loader}
     </main>
   );

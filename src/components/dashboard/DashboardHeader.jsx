@@ -13,12 +13,12 @@ export default function DashboardHeader({
   profile,
 }) {
   return (
-    <header className="overflow-hidden rounded-lg border border-slate-800 bg-gradient-to-br from-slate-950 via-emerald-950 to-sky-950 text-white shadow-soft dark:border-white/10">
+    <header className="overflow-hidden rounded-lg border border-emerald-200/20 bg-gradient-to-br from-slate-950 via-emerald-950 to-cyan-950 text-white shadow-2xl shadow-emerald-950/15 dark:border-emerald-300/15 dark:from-[#06100f] dark:via-[#07352c] dark:to-[#071426]">
       <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <p className="text-sm font-semibold uppercase text-emerald-300">Lettuce Monitor</p>
+          <p className="text-sm font-bold uppercase text-emerald-200">Lettuce Monitor</p>
           <h1 className="mt-2 text-3xl font-bold leading-tight sm:text-4xl">Realtime Growth Dashboard</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-200/90">
             {profile?.farm_name || "Manila sensor simulation"} with live sensor monitoring, pump status,
             and growth prediction outputs.
           </p>
@@ -33,7 +33,7 @@ export default function DashboardHeader({
             )}
             {error ? "Fallback data" : isMock ? "Preview data" : "Live Supabase"}
           </StatusBadge>
-          <div className="flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300">
+          <div className="flex min-w-0 items-center gap-2 rounded-lg border border-white/12 bg-white/8 px-3 py-2 text-sm text-slate-200 shadow-inner shadow-white/5 backdrop-blur">
             <Clock3 className="h-4 w-4 shrink-0 text-sky-300" aria-hidden="true" />
             <span className="truncate">
               <span className="font-semibold text-white">Last refresh:</span>{" "}
@@ -44,7 +44,7 @@ export default function DashboardHeader({
           <button
             type="button"
             onClick={onRefresh}
-            className="focus-ring inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 disabled:cursor-wait disabled:opacity-70"
+            className="focus-ring inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-bold text-slate-950 shadow-sm transition hover:bg-emerald-50 disabled:cursor-wait disabled:opacity-70"
             disabled={loading}
             title="Refresh dashboard data"
           >

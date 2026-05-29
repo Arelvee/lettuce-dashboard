@@ -11,15 +11,15 @@ import {
 import { formatNumber, formatTime, sortAscending } from "../../utils/format";
 
 const series = [
-  { key: "humidity", label: "Humidity", color: "#059669", unit: "%" },
-  { key: "atemp", label: "Air Temp", color: "#dc2626", unit: "C" },
-  { key: "wtemp", label: "Water Temp", color: "#0284c7", unit: "C" },
+  { key: "humidity", label: "Humidity", color: "#10b981", unit: "%" },
+  { key: "atemp", label: "Air Temp", color: "#f97316", unit: "C" },
+  { key: "wtemp", label: "Water Temp", color: "#38bdf8", unit: "C" },
 ];
 
 function TooltipContent({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-slate-900">
+    <div className="rounded-lg border border-slate-200 bg-white/95 p-3 shadow-lg dark:border-white/10 dark:bg-slate-950/95">
       <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{formatTime(label)}</p>
       <div className="mt-2 space-y-1">
         {payload.map((item) => (

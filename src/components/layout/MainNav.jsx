@@ -18,7 +18,7 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
   ];
 
   return (
-    <nav className="sticky top-3 z-20 rounded-lg border border-slate-200/80 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85">
+    <nav className="sticky top-3 z-20 rounded-lg border border-emerald-900/10 bg-white/82 px-3 py-2 shadow-lg shadow-emerald-950/5 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/72 dark:shadow-black/30">
       <div className="flex items-center justify-between gap-3">
         <button
           type="button"
@@ -30,7 +30,7 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
           <ThesisLogo />
           <span className="hidden min-w-0 sm:block">
             <span className="block text-sm font-bold leading-5 text-slate-950 dark:text-white">Lettuce Predict</span>
-            <span className="block truncate text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="block truncate text-xs font-medium text-emerald-700/75 dark:text-emerald-200/70">
               {profile?.farm_name || "Vertical farm system"}
             </span>
           </span>
@@ -39,7 +39,7 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100 md:hidden dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+          className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-900/10 bg-white/75 text-slate-700 shadow-sm transition hover:bg-emerald-50 md:hidden dark:border-white/10 dark:bg-white/7 dark:text-slate-200 dark:hover:bg-white/12"
           aria-label={open ? "Close navigation" : "Open navigation"}
         >
           {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
@@ -53,8 +53,8 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
               onClick={() => navigate(key)}
               className={`focus-ring inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
                 activePage === key
-                  ? "bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                  ? "bg-gradient-to-r from-slate-950 to-emerald-900 text-white shadow-md shadow-emerald-950/20 dark:from-white dark:to-emerald-100 dark:text-slate-950"
+                  : "text-slate-600 hover:bg-emerald-50 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
               }`}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
@@ -64,7 +64,7 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
           <button
             type="button"
             onClick={onToggleTheme}
-            className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
+            className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-900/10 bg-white/60 text-slate-700 transition hover:bg-emerald-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
             title={isDark ? "Switch to light view" : "Switch to dark view"}
             aria-label={isDark ? "Switch to light view" : "Switch to dark view"}
           >
@@ -73,7 +73,7 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
           <button
             type="button"
             onClick={onSignOut}
-            className="focus-ring inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
+            className="focus-ring inline-flex h-10 items-center gap-2 rounded-lg border border-emerald-900/10 bg-white/60 px-3 text-sm font-semibold text-slate-700 transition hover:bg-emerald-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
             Sign out
@@ -89,8 +89,8 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
           onClick={() => navigate(key)}
           className={`focus-ring inline-flex h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
             activePage === key
-                ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
-                : "bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+                ? "bg-gradient-to-r from-slate-950 to-emerald-900 text-white dark:from-white dark:to-emerald-100 dark:text-slate-950"
+                : "bg-white/70 text-slate-700 hover:bg-emerald-50 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
           }`}
         >
           <Icon className="h-4 w-4" aria-hidden="true" />
@@ -101,7 +101,7 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
           <button
             type="button"
             onClick={onToggleTheme}
-            className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
+            className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-emerald-900/10 bg-white/60 text-sm font-semibold text-slate-700 transition hover:bg-emerald-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
           >
             {isDark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
             {isDark ? "Light" : "Dark"}
@@ -109,7 +109,7 @@ export default function MainNav({ activePage, profile, theme, onNavigate, onSign
           <button
             type="button"
             onClick={onSignOut}
-            className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
+            className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-emerald-900/10 bg-white/60 text-sm font-semibold text-slate-700 transition hover:bg-emerald-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
             Sign out

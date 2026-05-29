@@ -13,7 +13,7 @@ import { formatNumber, formatTime, sortAscending } from "../../utils/format";
 function TooltipContent({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-slate-900">
+    <div className="rounded-lg border border-slate-200 bg-white/95 p-3 shadow-lg dark:border-white/10 dark:bg-slate-950/95">
       <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{formatTime(label)}</p>
       {payload.map((item) => (
         <p key={item.dataKey} className="mt-1 text-sm font-medium" style={{ color: item.color }}>
@@ -67,9 +67,9 @@ export default function NutrientTrendChart({ readings }) {
             />
             <Tooltip content={<TooltipContent />} />
             <Legend verticalAlign="top" height={32} iconType="circle" wrapperStyle={{ color: "var(--chart-tick)" }} />
-            <Line yAxisId="left" type="monotone" dataKey="tds" name="TDS" stroke="#7c3aed" strokeWidth={2} dot={false} />
-            <Line yAxisId="left" type="monotone" dataKey="ec" name="EC" stroke="#d97706" strokeWidth={2} dot={false} />
-            <Line yAxisId="right" type="monotone" dataKey="ph" name="pH" stroke="#475569" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="tds" name="TDS" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="ec" name="EC" stroke="#f59e0b" strokeWidth={2} dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="ph" name="pH" stroke="#14b8a6" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

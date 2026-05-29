@@ -4,9 +4,17 @@
 
 :root {
   color-scheme: light;
-  background: #f8fafc;
+  background: #f6fbf8;
   --chart-grid: #e5e7eb;
-  --chart-tick: #64748b;
+  --chart-tick: #475569;
+  --app-bg-top: #fbfffc;
+  --app-bg-mid: #edf9f2;
+  --app-bg-bottom: #eef6ff;
+  --surface-bg: rgba(255, 255, 255, 0.88);
+  --surface-border: rgba(125, 169, 151, 0.34);
+  --surface-shadow: 0 18px 48px rgba(8, 47, 73, 0.08), 0 2px 10px rgba(15, 23, 42, 0.04);
+  --panel-bg: rgba(245, 251, 248, 0.86);
+  --panel-border: rgba(148, 163, 184, 0.36);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,20 +23,34 @@
 
 .dark {
   color-scheme: dark;
-  background: #050816;
+  background: #071111;
   --chart-grid: rgba(148, 163, 184, 0.2);
-  --chart-tick: #94a3b8;
+  --chart-tick: #cbd5e1;
+  --app-bg-top: #071111;
+  --app-bg-mid: #0b171b;
+  --app-bg-bottom: #07101e;
+  --surface-bg: rgba(12, 24, 28, 0.82);
+  --surface-border: rgba(125, 211, 194, 0.15);
+  --surface-shadow: 0 22px 64px rgba(0, 0, 0, 0.36);
+  --panel-bg: rgba(255, 255, 255, 0.045);
+  --panel-border: rgba(148, 163, 184, 0.16);
 }
 
 body {
   min-width: 320px;
   margin: 0;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #eef2f7 100%);
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.08) 0%, transparent 28%),
+    linear-gradient(225deg, rgba(14, 165, 233, 0.09) 0%, transparent 32%),
+    linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg-mid) 48%, var(--app-bg-bottom) 100%);
   color: #0f172a;
 }
 
 .dark body {
-  background: linear-gradient(180deg, #0f172a 0%, #08111f 42%, #050816 100%);
+  background:
+    linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, transparent 30%),
+    linear-gradient(225deg, rgba(56, 189, 248, 0.1) 0%, transparent 34%),
+    linear-gradient(180deg, var(--app-bg-top) 0%, var(--app-bg-mid) 46%, var(--app-bg-bottom) 100%);
   color: #e2e8f0;
 }
 
@@ -40,19 +62,43 @@ select {
 
 @layer components {
   .surface {
-    @apply rounded-lg border border-slate-200/80 bg-white shadow-soft transition-colors dark:border-white/10 dark:bg-slate-900/95 dark:shadow-none;
+    border: 1px solid var(--surface-border);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0)),
+      var(--surface-bg);
+    box-shadow: var(--surface-shadow);
+    @apply rounded-lg backdrop-blur-xl transition-colors;
+  }
+
+  .dark .surface {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+      var(--surface-bg);
   }
 
   .section-title {
-    @apply text-sm font-semibold uppercase tracking-normal text-slate-500 dark:text-slate-400;
+    @apply text-sm font-bold uppercase tracking-normal text-emerald-700/80 dark:text-emerald-300/80;
   }
 
   .focus-ring {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-slate-950;
   }
 
   .panel-muted {
-    @apply rounded-lg border border-slate-200 bg-slate-50/80 dark:border-white/10 dark:bg-white/5;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-bg);
+    @apply rounded-lg backdrop-blur;
+  }
+
+  .field-control {
+    @apply focus-ring mt-1 h-11 w-full rounded-lg border px-3 text-slate-950 shadow-sm transition placeholder:text-slate-400 dark:text-white;
+    border-color: rgba(125, 169, 151, 0.38);
+    background: rgba(255, 255, 255, 0.84);
+  }
+
+  .dark .field-control {
+    border-color: rgba(148, 163, 184, 0.18);
+    background: rgba(2, 6, 23, 0.46);
   }
 }
 
@@ -194,6 +240,110 @@ select {
   .scan-line {
     animation: scanLine 2.6s ease-in-out infinite;
   }
+
+  .modern-map-shell {
+    position: relative;
+    min-height: 520px;
+    height: 100%;
+    overflow: hidden;
+    background: linear-gradient(135deg, #dff8ed, #dbeafe);
+  }
+
+  .dark .modern-map-shell {
+    background: linear-gradient(135deg, #071111, #071426);
+  }
+
+  .modern-map-pin {
+    position: relative;
+    height: 3rem;
+    width: 3rem;
+    transform: translateY(-0.25rem);
+  }
+
+  .modern-map-pin::before {
+    position: absolute;
+    inset: 0.14rem;
+    content: "";
+    border-radius: 9999px;
+    background: radial-gradient(circle at 35% 30%, #eafff6, #10b981 48%, #0f766e 100%);
+    border: 4px solid rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 36px rgba(6, 78, 59, 0.38), 0 0 0 8px rgba(16, 185, 129, 0.18);
+  }
+
+  .modern-map-pin::after {
+    position: absolute;
+    left: 50%;
+    top: 2.55rem;
+    content: "";
+    height: 1.25rem;
+    width: 0.32rem;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    background: #047857;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.28);
+  }
+
+  .modern-map-pin span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    height: 0.8rem;
+    width: 0.8rem;
+    transform: translate(-50%, -50%);
+    border-radius: 9999px;
+    background: #ecfeff;
+    box-shadow: 0 0 20px rgba(236, 254, 255, 0.86);
+  }
+
+  .maplibregl-ctrl-group {
+    border: 1px solid rgba(15, 118, 110, 0.16) !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    box-shadow: 0 12px 28px rgba(8, 47, 73, 0.14) !important;
+    backdrop-filter: blur(12px);
+  }
+
+  .dark .maplibregl-ctrl-group {
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    background: rgba(2, 6, 23, 0.78) !important;
+  }
+
+  .dark .maplibregl-ctrl button {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  .maplibregl-ctrl-attrib {
+    border-radius: 0.5rem 0 0 0 !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+  }
+
+  .dark .maplibregl-ctrl-attrib {
+    background: rgba(2, 6, 23, 0.78) !important;
+    color: #cbd5e1 !important;
+  }
+}
+
+.dark .surface .text-slate-950,
+.dark .surface .text-slate-900 {
+  color: #f8fafc;
+}
+
+.dark .surface .text-slate-700,
+.dark .surface .text-slate-600 {
+  color: #d8e7e2;
+}
+
+.dark .surface .text-slate-500,
+.dark .surface .text-slate-400 {
+  color: #b7c8c2;
+}
+
+.dark .surface .dark\:text-slate-950 {
+  color: #020617;
+}
+
+.dark .surface .dark\:text-slate-600 {
+  color: #475569;
 }
 
 @keyframes logoFloat {

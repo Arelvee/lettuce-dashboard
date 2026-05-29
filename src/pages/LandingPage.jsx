@@ -37,7 +37,7 @@ const pipeline = [
 
 export default function LandingPage({ onGetStarted }) {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-950">
+    <main className="min-h-screen text-slate-950 dark:text-slate-100">
       <section
         className="relative flex min-h-[88vh] items-end overflow-hidden bg-cover bg-center"
         style={{
@@ -105,34 +105,34 @@ export default function LandingPage({ onGetStarted }) {
         </a>
       </section>
 
-      <section id="study" className="border-b border-slate-200 bg-white py-12 sm:py-16">
+      <section id="study" className="border-b border-emerald-900/10 bg-white/78 py-12 backdrop-blur dark:border-white/10 dark:bg-white/[0.03] sm:py-16">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
           <div>
             <p className="section-title">Thesis Presentation</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-950">Research Context</h2>
-            <div className="mt-5 space-y-2 text-sm text-slate-600">
+            <h2 className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">Research Context</h2>
+            <div className="mt-5 space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <p>A Thesis Presented to the Faculty of College of Engineering and Fine Arts</p>
               <p>Graduate Program of Master of Science in Electronics Engineering</p>
               <p>Batangas State University - The National Engineering University</p>
               <p>Alangilan Campus, Batangas City, Philippines</p>
-              <p className="pt-4 font-semibold text-slate-900">Ralph Laurence G. Visaya / May 2026</p>
+              <p className="pt-4 font-semibold text-slate-900 dark:text-white">Ralph Laurence G. Visaya / May 2026</p>
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+            <div className="panel-muted p-5">
               <Cpu className="h-6 w-6 text-sky-600" aria-hidden="true" />
-              <p className="mt-4 text-2xl font-bold text-slate-950">10</p>
-              <p className="mt-1 text-sm text-slate-500">sensor features per BiLSTM window</p>
+              <p className="mt-4 text-2xl font-bold text-slate-950 dark:text-white">10</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">sensor features per BiLSTM window</p>
             </div>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+            <div className="panel-muted p-5">
               <LineChart className="h-6 w-6 text-emerald-600" aria-hidden="true" />
-              <p className="mt-4 text-2xl font-bold text-slate-950">5 min</p>
-              <p className="mt-1 text-sm text-slate-500">realtime monitoring cadence</p>
+              <p className="mt-4 text-2xl font-bold text-slate-950 dark:text-white">5 min</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">realtime monitoring cadence</p>
             </div>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+            <div className="panel-muted p-5">
               <ShieldCheck className="h-6 w-6 text-amber-600" aria-hidden="true" />
-              <p className="mt-4 text-2xl font-bold text-slate-950">2</p>
-              <p className="mt-1 text-sm text-slate-500">outputs: stage label and 6-slot yield count</p>
+              <p className="mt-4 text-2xl font-bold text-slate-950 dark:text-white">2</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">outputs: stage label and 6-slot yield count</p>
             </div>
           </div>
         </div>
@@ -143,9 +143,9 @@ export default function LandingPage({ onGetStarted }) {
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p className="section-title">Statement of the Problem</p>
-              <h2 className="mt-2 text-3xl font-bold text-slate-950">Why Prediction Matters</h2>
+              <h2 className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">Why Prediction Matters</h2>
             </div>
-            <div className="space-y-4 text-base leading-7 text-slate-600">
+            <div className="space-y-4 text-base leading-7 text-slate-600 dark:text-slate-300">
               <p>
                 Indoor hydroponic and vertical farming systems improve production efficiency, but
                 many small-scale farms still rely on manual monitoring. Delayed interventions can
@@ -166,27 +166,27 @@ export default function LandingPage({ onGetStarted }) {
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {researchQuestions.map((question, index) => (
-              <article key={question} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <article key={question} className="surface p-4">
                 <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">RQ {index + 1}</p>
-                <p className="mt-3 text-sm leading-6 text-slate-700">{question}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">{question}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-y border-slate-200 bg-white py-12 sm:py-16">
+      <section className="border-y border-emerald-900/10 bg-white/78 py-12 backdrop-blur dark:border-white/10 dark:bg-white/[0.03] sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <p className="section-title">Objectives of the Study</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-950">Hybrid Prediction Framework</h2>
+            <h2 className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">Hybrid Prediction Framework</h2>
           </div>
           <div className="mt-8 grid gap-4 lg:grid-cols-5">
             {objectives.map((objective, index) => (
-              <div key={objective} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div key={objective} className="panel-muted p-4">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-                <p className="mt-4 text-sm font-bold text-slate-950">Objective {index + 1}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{objective}</p>
+                <p className="mt-4 text-sm font-bold text-slate-950 dark:text-white">Objective {index + 1}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{objective}</p>
               </div>
             ))}
           </div>

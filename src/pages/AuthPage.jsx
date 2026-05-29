@@ -74,7 +74,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.22),transparent_34%),linear-gradient(135deg,#06110f,#071426_58%,#020617)] text-white">
       <div className="mx-auto grid min-h-dvh max-w-7xl items-center gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)] lg:gap-8 lg:px-8">
         <section className="relative order-2 flex min-h-[360px] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-5 sm:p-8 lg:order-1 lg:min-h-[calc(100dvh-3rem)]"
           style={{
@@ -111,9 +111,9 @@ export default function AuthPage({ onBack, onAuthenticated }) {
         </section>
 
         <section className="order-1 flex items-center justify-center lg:order-2">
-          <div className="w-full max-w-lg rounded-lg border border-emerald-100 bg-white p-5 text-slate-950 shadow-2xl shadow-emerald-950/10 sm:p-6">
+          <div className="w-full max-w-lg rounded-lg border border-emerald-100/80 bg-white/92 p-5 text-slate-950 shadow-2xl shadow-emerald-950/15 backdrop-blur-xl sm:p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-950/20">
                 <ActiveIcon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
@@ -126,7 +126,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               <button
                 type="button"
                 onClick={() => setMode("login")}
-                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "login" ? "bg-emerald-700 text-white" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
+                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "login" ? "bg-gradient-to-r from-emerald-700 to-teal-700 text-white shadow-sm" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
               >
                 <LockKeyhole className="h-4 w-4" aria-hidden="true" />
                 Login
@@ -134,7 +134,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               <button
                 type="button"
                 onClick={() => setMode("register")}
-                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "register" ? "bg-emerald-700 text-white" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
+                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "register" ? "bg-gradient-to-r from-emerald-700 to-teal-700 text-white shadow-sm" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
               >
                 <UserPlus className="h-4 w-4" aria-hidden="true" />
                 Register
@@ -149,7 +149,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     <input
                       value={form.fullName}
                       onChange={(event) => updateField("fullName", event.target.value)}
-                      className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
+                      className="field-control"
                       required
                     />
                   </label>
@@ -158,7 +158,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     <input
                       value={form.institution}
                       onChange={(event) => updateField("institution", event.target.value)}
-                      className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
+                      className="field-control"
                     />
                   </label>
                 </div>
@@ -172,7 +172,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     type="email"
                     value={form.email}
                     onChange={(event) => updateField("email", event.target.value)}
-                    className="focus-ring h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 pl-10 pr-3"
+                    className="field-control mt-0 pl-10 pr-3"
                     required
                   />
                 </div>
@@ -185,7 +185,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     type="password"
                     value={form.password}
                     onChange={(event) => updateField("password", event.target.value)}
-                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
+                    className="field-control"
                     minLength={6}
                     required
                   />
@@ -199,7 +199,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     type="password"
                     value={form.confirmPassword}
                     onChange={(event) => updateField("confirmPassword", event.target.value)}
-                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
+                    className="field-control"
                     minLength={6}
                     required
                   />
@@ -215,7 +215,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               <button
                 type="submit"
                 disabled={busy}
-                className="focus-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-70"
+                className="focus-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-700 to-teal-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-950/20 transition hover:from-emerald-800 hover:to-cyan-800 disabled:cursor-wait disabled:opacity-70"
               >
                 <ActiveIcon className="h-4 w-4" aria-hidden="true" />
                 {busy ? "Processing..." : modes[mode].title}

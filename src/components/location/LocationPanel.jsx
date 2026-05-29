@@ -1,6 +1,8 @@
 import { Building2, LocateFixed, Map, MapPinned, Mountain, Navigation, Network, Router, Satellite, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import StatusBadge from "../common/StatusBadge";
+
+const MapLibreView = lazy(() => import("./MapLibreView"));
 
 const DEFAULT_LOCATION = {
   latitude: 14.5869,
@@ -27,29 +29,8 @@ const mapModes = [
   { key: "3d", label: "3D View", icon: Building2, detail: "3D buildings" },
 ];
 
-const mapServices = {
-  map: "World_Street_Map",
-  satellite: "World_Imagery",
-  terrain: "World_Topo_Map",
-};
-
 function fixedCoordinate(value) {
   return Number(value).toFixed(6);
-}
-
-function mapImageUrl(latitude, longitude, mode) {
-  const lat = Number(latitude);
-  const lon = Number(longitude);
-  const delta = mode === "terrain" ? 0.035 : 0.018;
-  const bbox = [lon - delta, lat - delta, lon + delta, lat + delta].map((value) => value.toFixed(6)).join(",");
-  const service = mapServices[mode] || mapServices.map;
-  return `https://services.arcgisonline.com/ArcGIS/rest/services/${service}/MapServer/export?bbox=${bbox}&bboxSR=4326&imageSR=3857&size=1280,720&format=png32&transparent=false&f=image`;
-}
-
-function threeDUrl(latitude, longitude) {
-  const lat = Number(latitude).toFixed(6);
-  const lon = Number(longitude).toFixed(6);
-  return `https://osmbuildings.org/?lat=${lat}&lon=${lon}&zoom=17&tilt=45&rotation=25`;
 }
 
 function addressFromPayload(payload) {
@@ -229,14 +210,14 @@ export default function LocationPanel({ profile, latestReading }) {
                   <input
                     value={esp32Ip}
                     onChange={(event) => setEsp32Ip(event.target.value)}
-                    className="focus-ring h-11 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-slate-950 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                    className="field-control mt-0 pl-10 pr-3"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={lookupIpLocation}
                   disabled={busy}
-                  className="focus-ring inline-flex h-11 items-center justify-center rounded-lg bg-slate-950 px-3 text-white transition hover:bg-slate-800 disabled:opacity-60 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+                  className="focus-ring inline-flex h-11 items-center justify-center rounded-lg bg-gradient-to-r from-slate-950 to-emerald-900 px-3 text-white shadow-sm transition hover:from-emerald-900 hover:to-teal-800 disabled:opacity-60 dark:from-white dark:to-emerald-100 dark:text-slate-950 dark:hover:from-emerald-50 dark:hover:to-cyan-100"
                   title="Lookup public IP location"
                 >
                   <Search className="h-4 w-4" aria-hidden="true" />
@@ -248,13 +229,13 @@ export default function LocationPanel({ profile, latestReading }) {
               type="button"
               onClick={() => locateDevice("manual")}
               disabled={busy}
-              className="focus-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+              className="focus-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-950/15 transition hover:from-emerald-700 hover:to-cyan-700 disabled:opacity-60"
             >
               <LocateFixed className="h-4 w-4" aria-hidden="true" />
               Refresh device location
             </button>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-950/80">
+            <div className="panel-muted p-3">
               <div className="flex items-start gap-3">
                 <Navigation className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
                 <div>
@@ -274,7 +255,7 @@ export default function LocationPanel({ profile, latestReading }) {
               </div>
             </div>
 
-            <div className="flex gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-600 dark:border-white/10 dark:bg-slate-950/80 dark:text-slate-300">
+            <div className="panel-muted flex gap-3 p-3 text-sm text-slate-600 dark:text-slate-300">
               <Network className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-300" aria-hidden="true" />
               <p>
                 Last ESP32 sample: {latestReading?.timestamp ? new Date(latestReading.timestamp).toLocaleString("en-PH") : "waiting for sensor data"}
@@ -289,31 +270,22 @@ export default function LocationPanel({ profile, latestReading }) {
           </div>
         </div>
 
-        <div className="flex min-h-[520px] flex-col border-t border-slate-200 bg-slate-100 lg:border-l lg:border-t-0 dark:border-white/10 dark:bg-slate-950">
-          <div className="relative min-h-[480px] flex-1 overflow-hidden bg-slate-200 dark:bg-slate-950">
-            {mapMode === "3d" ? (
-              <iframe
-                key={`${mapMode}-${location.latitude}-${location.longitude}`}
-                title="3D device location map"
-                src={threeDUrl(location.latitude, location.longitude)}
-                className="h-full min-h-[480px] w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+        <div className="flex min-h-[560px] flex-col border-t border-slate-200 bg-slate-100 lg:border-l lg:border-t-0 dark:border-white/10 dark:bg-slate-950">
+          <div className="relative min-h-[520px] flex-1 overflow-hidden bg-slate-200 dark:bg-slate-950">
+            <Suspense
+              fallback={
+                <div className="flex min-h-[520px] items-center justify-center bg-gradient-to-br from-emerald-50 to-sky-50 text-sm font-bold text-emerald-800 dark:from-slate-950 dark:to-emerald-950/40 dark:text-emerald-200">
+                  Loading 3D map...
+                </div>
+              }
+            >
+              <MapLibreView
+                latitude={location.latitude}
+                longitude={location.longitude}
+                mode={mapMode}
+                label={location.address || location.label}
               />
-            ) : (
-              <img
-                key={`${mapMode}-${location.latitude}-${location.longitude}`}
-                src={mapImageUrl(location.latitude, location.longitude, mapMode)}
-                alt={`${mapModes.find((mode) => mode.key === mapMode)?.label} map for ${location.address || location.label}`}
-                className="h-full min-h-[480px] w-full object-cover"
-              />
-            )}
-            <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-emerald-600 text-white shadow-2xl shadow-slate-950/30">
-                <MapPinned className="h-6 w-6" aria-hidden="true" />
-              </div>
-              <div className="h-5 w-1 rounded-full bg-emerald-600 shadow-lg" />
-            </div>
+            </Suspense>
             <div className="pointer-events-none absolute left-4 top-4 rounded-lg border border-white/60 bg-white/90 px-3 py-2 text-sm shadow-soft backdrop-blur dark:border-white/10 dark:bg-slate-950/90">
               <div className="flex items-center gap-2 font-bold text-slate-950 dark:text-white">
                 <MapPinned className="h-4 w-4 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />

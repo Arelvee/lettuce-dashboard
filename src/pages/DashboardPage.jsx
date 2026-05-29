@@ -1,8 +1,8 @@
 import {
-  Brain,
-  Gauge,
-  Leaf,
-  ShieldCheck,
+  HeartPulse,
+  PackageCheck,
+  ScanSearch,
+  Sprout,
 } from "lucide-react";
 import { useState } from "react";
 import PredictionHistoryChart from "../components/charts/PredictionHistoryChart";
@@ -92,7 +92,7 @@ export default function DashboardPage({ profile }) {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
-          icon={Brain}
+          icon={Sprout}
           label="Growth Stage"
           value={stageInfo.label}
           detail={stageDetail}
@@ -100,14 +100,14 @@ export default function DashboardPage({ profile }) {
           onClick={() => setDetailType("stage")}
         />
         <MetricCard
-          icon={Gauge}
+          icon={ScanSearch}
           label="Confidence"
           value={confidence === null ? "--" : formatPercent(confidence)}
           detail={confidenceDetail}
           tone={Number(confidence || 0) >= 0.75 ? "emerald" : "amber"}
         />
         <MetricCard
-          icon={Leaf}
+          icon={PackageCheck}
           label="Yield Count"
           value={formatYieldCount(latestPrediction)}
           unit="heads"
@@ -122,7 +122,7 @@ export default function DashboardPage({ profile }) {
           onClick={() => setDetailType("yield")}
         />
         <MetricCard
-          icon={ShieldCheck}
+          icon={HeartPulse}
           label="Overall Health"
           value={String(health)}
           unit="%"
