@@ -8,13 +8,15 @@ import {
   LineChart,
   RadioTower,
   ShieldCheck,
+  Sprout,
   Waves,
 } from "lucide-react";
+import ThesisLogo from "../components/common/ThesisLogo";
 
 const researchQuestions = [
   "What environmental parameters are significant for monitoring lettuce growth conditions in an indoor vertical farming system?",
   "How can the Daubechies wavelet transform (db4) be applied to preprocess time-series environmental sensor data for lettuce growth monitoring?",
-  "How effective is the hybrid Long Short-Term Memory (LSTM) and XGBoost model in predicting lettuce growth stage and crop yield using preprocessed sensor data?",
+  "How effective is the hybrid BiLSTM with Attention and XGBoost model in predicting lettuce growth stage and 6-slot yield count using preprocessed sensor data?",
   "How accurate and reliable is the developed predictive model based on MAE, MSE, RMSE, and R2?",
   "How does the developed predictive approach compare with existing manual monitoring practices in terms of crop monitoring and decision-support capability?",
 ];
@@ -22,7 +24,7 @@ const researchQuestions = [
 const objectives = [
   "Implement environmental sensing and monitoring of temperature, humidity, pH, EC, TDS, light intensity, and spectral reflectance.",
   "Preprocess, normalize, and denoise time-series environmental sensor data using the Daubechies Wavelet Transform (db4).",
-  "Develop a hybrid LSTM and XGBoost predictive framework for lettuce growth stage and crop yield prediction.",
+  "Develop a hybrid BiLSTM with Attention and XGBoost predictive framework for lettuce growth stage classification and 6-slot yield count regression.",
   "Evaluate prediction accuracy and reliability using MAE, MSE, RMSE, R2, and K-Fold Cross-Validation.",
   "Compare the predictive framework with manual crop monitoring practices for decision-support capability.",
 ];
@@ -30,8 +32,8 @@ const objectives = [
 const pipeline = [
   { icon: RadioTower, label: "ESP32 Sensors", detail: "Hydroponic environment and spectral data" },
   { icon: Waves, label: "Db4 Denoising", detail: "Wavelet preprocessing for noisy time-series signals" },
-  { icon: BrainCircuit, label: "LSTM Bottleneck", detail: "Temporal feature extraction from 10-sample windows" },
-  { icon: BarChart3, label: "XGBoost Output", detail: "Growth stage and crop yield prediction" },
+  { icon: BrainCircuit, label: "BiLSTM + Attention", detail: "Temporal feature extraction from sensor windows" },
+  { icon: BarChart3, label: "XGBoost Outputs", detail: "Stage classification and 6-slot yield count regression" },
 ];
 
 export default function LandingPage({ onGetStarted }) {
@@ -41,11 +43,14 @@ export default function LandingPage({ onGetStarted }) {
         className="relative flex min-h-[88vh] items-end overflow-hidden bg-cover bg-center"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.62), rgba(2, 6, 23, 0.18)), url('https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?auto=format&fit=crop&w=1800&q=85')",
+            "linear-gradient(90deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.66), rgba(2, 6, 23, 0.26)), url('https://commons.wikimedia.org/wiki/Special:Redirect/file/Lettuce_in_Vertical_Farm.jpg')",
         }}
       >
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-10 pt-24 text-white sm:px-6 lg:px-8">
           <div className="max-w-4xl">
+            <div className="mb-6 inline-flex rounded-lg border border-white/15 bg-white/10 px-3 py-2 backdrop-blur">
+              <ThesisLogo inverse />
+            </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-sm font-semibold backdrop-blur">
               <Leaf className="h-4 w-4 text-emerald-300" aria-hidden="true" />
               Master of Science in Electronics Engineering
@@ -55,8 +60,8 @@ export default function LandingPage({ onGetStarted }) {
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
               A thesis system integrating environmental sensing, Daubechies wavelet preprocessing,
-              LSTM temporal feature extraction, and XGBoost prediction for real-time hydroponic
-              lettuce decision support.
+              BiLSTM with Attention feature extraction, and XGBoost classifier/regressor outputs
+              for real-time hydroponic lettuce decision support.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <button
@@ -69,8 +74,9 @@ export default function LandingPage({ onGetStarted }) {
               </button>
               <a
                 href="#study"
-                className="focus-ring inline-flex h-12 items-center justify-center rounded-lg border border-white/25 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
+                className="focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
               >
+                <Sprout className="h-4 w-4" aria-hidden="true" />
                 View Study Scope
               </a>
             </div>
@@ -86,6 +92,12 @@ export default function LandingPage({ onGetStarted }) {
             ))}
           </div>
         </div>
+        <a
+          href="https://commons.wikimedia.org/wiki/File:Lettuce_in_Vertical_Farm.jpg"
+          className="absolute bottom-3 right-3 rounded bg-slate-950/55 px-2 py-1 text-[10px] font-medium text-white/75 backdrop-blur transition hover:text-white"
+        >
+          Photo: Bright Agrotech / CC BY-SA 4.0
+        </a>
       </section>
 
       <section id="study" className="border-b border-slate-200 bg-white py-12 sm:py-16">
@@ -105,7 +117,7 @@ export default function LandingPage({ onGetStarted }) {
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
               <Cpu className="h-6 w-6 text-sky-600" aria-hidden="true" />
               <p className="mt-4 text-2xl font-bold text-slate-950">10</p>
-              <p className="mt-1 text-sm text-slate-500">sensor features per LSTM window</p>
+              <p className="mt-1 text-sm text-slate-500">sensor features per BiLSTM window</p>
             </div>
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
               <LineChart className="h-6 w-6 text-emerald-600" aria-hidden="true" />
@@ -115,7 +127,7 @@ export default function LandingPage({ onGetStarted }) {
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
               <ShieldCheck className="h-6 w-6 text-amber-600" aria-hidden="true" />
               <p className="mt-4 text-2xl font-bold text-slate-950">2</p>
-              <p className="mt-1 text-sm text-slate-500">prediction outputs: stage and yield</p>
+              <p className="mt-1 text-sm text-slate-500">outputs: stage label and 6-slot yield count</p>
             </div>
           </div>
         </div>
@@ -150,7 +162,7 @@ export default function LandingPage({ onGetStarted }) {
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {researchQuestions.map((question, index) => (
               <article key={question} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">RQ {index + 1}</p>
+                <p className="text-xs font-bold uppercase tracking-normal text-emerald-700">RQ {index + 1}</p>
                 <p className="mt-3 text-sm leading-6 text-slate-700">{question}</p>
               </article>
             ))}
@@ -178,4 +190,3 @@ export default function LandingPage({ onGetStarted }) {
     </main>
   );
 }
-

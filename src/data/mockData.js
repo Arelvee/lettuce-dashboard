@@ -6,6 +6,25 @@ function round(value, digits = 2) {
 
 export function createMockDashboardData() {
   const now = new Date();
+  const cropStart = new Date(now.getTime() - 28 * 24 * 60 * 60_000);
+  const activeBatch = {
+    id: "batch-2026-001",
+    batch_name: "Batch #001",
+    started_at: cropStart.toISOString(),
+    ended_at: null,
+    status: "active",
+    notes: "Preview batch seeded from mock data.",
+    created_at: cropStart.toISOString(),
+  };
+  const harvestedBatch = {
+    id: "batch-2025-004",
+    batch_name: "Batch #004",
+    started_at: new Date(now.getTime() - 67 * 24 * 60 * 60_000).toISOString(),
+    ended_at: new Date(now.getTime() - 31 * 24 * 60 * 60_000).toISOString(),
+    status: "harvested",
+    notes: "Mock harvested history.",
+    created_at: new Date(now.getTime() - 67 * 24 * 60 * 60_000).toISOString(),
+  };
   const sensorReadings = Array.from({ length: 48 }, (_, index) => {
     const minutesAgo = (47 - index) * 5;
     const ts = new Date(now.getTime() - minutesAgo * 60_000);
@@ -31,6 +50,19 @@ export function createMockDashboardData() {
       ph: round(6.08 + Math.sin(index / 7) * 0.09, 4),
       pump_on: hour >= 6 && hour < 18,
       source: "mock-preview",
+      arduino_payload_json: {},
+      batch_id: activeBatch.id,
+      batch_age_days: round((ts - cropStart) / 86400000, 1),
+      expected_growth_stage: "Head Formation",
+      growth_stage_age_confidence: 0.88,
+      vpd_kpa: round(1.12 + Math.sin(index / 5) * 0.08, 2),
+      dew_point_c: round(23.2 + Math.cos(index / 6) * 0.6, 1),
+      light_integral_mol_m2: round(light / 54 / 100, 2),
+      sensor_health_score: 96,
+      sensor_health_json: {},
+      sensor_alerts: index % 11 === 0 ? "TDS below target" : "",
+      data_quality_score: 98,
+      data_quality_flags: "",
     };
   }).reverse();
 
@@ -49,9 +81,37 @@ export function createMockDashboardData() {
       timestamp: ts.toISOString(),
       window_start: new Date(ts.getTime() - 45 * 60_000).toISOString(),
       window_end: ts.toISOString(),
-      growth_stage: stage,
+      growth_stage: stages.indexOf(stage),
+      model_growth_stage: stage,
+      age_expected_growth_stage: "Head Formation",
+      growth_stage_basis: "model+age",
       stage_probability: round(0.72 + index * 0.018, 4),
-      predicted_yield_g: round(34 + index * 1.35),
+      stage_probability_pct: round((0.72 + index * 0.018) * 100, 1),
+      confidence_target_met: true,
+      detection_quality: "good",
+      predicted_yield_count: Math.max(1, Math.min(6, Math.round(2 + index * 0.35))),
+      predicted_yield_g: Math.max(1, Math.min(6, Math.round(2 + index * 0.35))),
+      yield_confidence: round(0.82 + index * 0.006, 4),
+      yield_confidence_pct: round((0.82 + index * 0.006) * 100, 1),
+      predicted_alive_slots: Math.max(1, Math.min(6, Math.round(2 + index * 0.35))),
+      predicted_empty_slots: Math.max(0, 6 - Math.max(1, Math.min(6, Math.round(2 + index * 0.35)))),
+      crop_status: stage === "Harvesting" ? "ready_for_harvest" : "growing",
+      recommended_action: stage === "Harvesting" ? "Prepare harvest validation and batch closeout." : "Continue monitoring.",
+      priority_sensor: index % 4 === 0 ? "tds" : "",
+      adjustment_summary: index % 4 === 0 ? "TDS is slightly below target." : "",
+      sensor_adjustments_json: {},
+      window_sample_count: 10,
+      window_duration_minutes: 45,
+      window_sensor_health_score: 96,
+      window_data_quality_score: 98,
+      window_alerts: "",
+      risk_score: round(index % 3 === 0 ? 0.18 : 0.08, 2),
+      window_feature_stats_json: {},
+      thesis_metrics_json: {},
+      model_backend: "mock-xgboost",
+      batch_id: activeBatch.id,
+      crop_start_timestamp: cropStart.toISOString(),
+      batch_age_days: round((ts - cropStart) / 86400000, 1),
       probabilities_json: probabilities,
       bottleneck_json: [],
     };
@@ -64,6 +124,7 @@ export function createMockDashboardData() {
       pump_on: now.getHours() >= 6 && now.getHours() < 18,
       schedule: "06:00-18:00 Asia/Manila",
       reason: "day schedule",
+      batch_id: activeBatch.id,
     },
   ];
 
@@ -79,6 +140,7 @@ export function createMockDashboardData() {
   ];
 
   return {
+    cropBatches: [activeBatch, harvestedBatch],
     sensorReadings,
     denoisedReadings: sensorReadings.slice(0, 30),
     predictions,
@@ -87,4 +149,3 @@ export function createMockDashboardData() {
     isMock: true,
   };
 }
-

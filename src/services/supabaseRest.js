@@ -26,8 +26,9 @@ export async function fetchTable(tableName, { limit = 100, order = "timestamp.de
 }
 
 export async function fetchDashboardTables(tables) {
-  const [sensorReadings, denoisedReadings, predictions, pumpEvents, weatherSnapshots] =
+  const [cropBatches, sensorReadings, denoisedReadings, predictions, pumpEvents, weatherSnapshots] =
     await Promise.all([
+      fetchTable(tables.cropBatches, { limit: 50, order: "created_at.desc" }),
       fetchTable(tables.sensorReadings, { limit: 180 }),
       fetchTable(tables.denoisedReadings, { limit: 60 }),
       fetchTable(tables.predictions, { limit: 50 }),
@@ -36,6 +37,7 @@ export async function fetchDashboardTables(tables) {
     ]);
 
   return {
+    cropBatches,
     sensorReadings,
     denoisedReadings,
     predictions,
@@ -44,3 +46,38 @@ export async function fetchDashboardTables(tables) {
   };
 }
 
+export async function createCropBatch(batch) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/crop_batches`, {
+    method: "POST",
+    headers: {
+      ...headers,
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(batch),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`crop_batches insert: HTTP ${response.status} ${text}`);
+  }
+
+  return response.json();
+}
+
+export async function updateCropBatch(id, fields) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/crop_batches?id=eq.${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: {
+      ...headers,
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(fields),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`crop_batches update: HTTP ${response.status} ${text}`);
+  }
+
+  return response.json();
+}

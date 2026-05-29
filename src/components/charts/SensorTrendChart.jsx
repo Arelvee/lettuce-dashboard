@@ -19,8 +19,8 @@ const series = [
 function TooltipContent({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
-      <p className="text-xs font-semibold text-slate-500">{formatTime(label)}</p>
+    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-slate-900">
+      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{formatTime(label)}</p>
       <div className="mt-2 space-y-1">
         {payload.map((item) => (
           <p key={item.dataKey} className="text-sm font-medium" style={{ color: item.color }}>
@@ -39,16 +39,16 @@ export default function SensorTrendChart({ readings }) {
   }));
 
   return (
-    <section className="surface p-4 sm:p-5">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <section className="surface overflow-hidden">
+      <div className="flex flex-col gap-1 border-b border-slate-200 p-4 sm:flex-row sm:items-end sm:justify-between sm:p-5 dark:border-white/10">
         <div>
           <p className="section-title">Environment Trend</p>
-          <h2 className="mt-1 text-xl font-bold text-slate-950">Temperature and humidity</h2>
+          <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Temperature and humidity</h2>
         </div>
-        <p className="text-sm text-slate-500">Latest {chartData.length} readings</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Latest {chartData.length} readings</p>
       </div>
 
-      <div className="mt-4 h-[300px] w-full">
+      <div className="h-[300px] w-full p-4 sm:p-5">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <defs>
@@ -59,23 +59,23 @@ export default function SensorTrendChart({ readings }) {
                 </linearGradient>
               ))}
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
             <XAxis
               dataKey="timestamp"
               minTickGap={28}
               tickFormatter={formatTime}
-              tick={{ fontSize: 12, fill: "#64748b" }}
+              tick={{ fontSize: 12, fill: "var(--chart-tick)" }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 12, fill: "#64748b" }}
+              tick={{ fontSize: 12, fill: "var(--chart-tick)" }}
               axisLine={false}
               tickLine={false}
               width={38}
             />
             <Tooltip content={<TooltipContent />} />
-            <Legend verticalAlign="top" height={32} iconType="circle" />
+            <Legend verticalAlign="top" height={32} iconType="circle" wrapperStyle={{ color: "var(--chart-tick)" }} />
             {series.map((item) => (
               <Area
                 key={item.key}
@@ -95,4 +95,3 @@ export default function SensorTrendChart({ readings }) {
     </section>
   );
 }
-

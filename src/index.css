@@ -5,19 +5,31 @@
 :root {
   color-scheme: light;
   background: #f8fafc;
+  --chart-grid: #e5e7eb;
+  --chart-tick: #64748b;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+.dark {
+  color-scheme: dark;
+  background: #050816;
+  --chart-grid: rgba(148, 163, 184, 0.2);
+  --chart-tick: #94a3b8;
+}
+
 body {
   min-width: 320px;
   margin: 0;
-  background:
-    linear-gradient(180deg, rgba(236, 253, 245, 0.72), rgba(248, 250, 252, 0) 360px),
-    #f8fafc;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #eef2f7 100%);
   color: #0f172a;
+}
+
+.dark body {
+  background: linear-gradient(180deg, #0f172a 0%, #08111f 42%, #050816 100%);
+  color: #e2e8f0;
 }
 
 button,
@@ -28,15 +40,82 @@ select {
 
 @layer components {
   .surface {
-    @apply rounded-lg border border-slate-200 bg-white shadow-soft;
+    @apply rounded-lg border border-slate-200/80 bg-white shadow-soft transition-colors dark:border-white/10 dark:bg-slate-900/95 dark:shadow-none;
   }
 
   .section-title {
-    @apply text-sm font-semibold uppercase tracking-wide text-slate-500;
+    @apply text-sm font-semibold uppercase tracking-normal text-slate-500 dark:text-slate-400;
   }
 
   .focus-ring {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  }
+
+  .panel-muted {
+    @apply rounded-lg border border-slate-200 bg-slate-50/80 dark:border-white/10 dark:bg-white/5;
   }
 }
 
+@layer utilities {
+  .logo-mark {
+    animation: logoFloat 4.5s ease-in-out infinite;
+  }
+
+  .logo-circuit {
+    animation: logoCircuit 8s linear infinite;
+  }
+
+  .logo-leaf {
+    animation: logoLeaf 2.8s ease-in-out infinite;
+  }
+
+  .logo-cap {
+    animation: logoCap 3.6s ease-in-out infinite;
+  }
+
+  .phone-float {
+    animation: phoneFloat 5s ease-in-out infinite;
+  }
+
+  .signal-wave {
+    animation: signalPulse 1.9s ease-out infinite;
+  }
+
+  .scan-line {
+    animation: scanLine 2.6s ease-in-out infinite;
+  }
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes logoCircuit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes logoLeaf {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50% { transform: scale(1.08) rotate(3deg); }
+}
+
+@keyframes logoCap {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-2px) rotate(4deg); }
+}
+
+@keyframes phoneFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes signalPulse {
+  0% { transform: scale(0.76); opacity: 0.9; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes scanLine {
+  0%, 100% { transform: translateY(0); opacity: 0.28; }
+  50% { transform: translateY(8.5rem); opacity: 0.7; }
+}

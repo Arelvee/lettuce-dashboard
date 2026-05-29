@@ -5,6 +5,7 @@ import { fetchDashboardTables } from "../services/supabaseRest";
 
 function hasRows(payload) {
   return (
+    payload.cropBatches?.length ||
     payload.sensorReadings?.length ||
     payload.predictions?.length ||
     payload.pumpEvents?.length ||
@@ -54,4 +55,3 @@ export function useDashboardData() {
     refreshSeconds: REFRESH_SECONDS,
   };
 }
-

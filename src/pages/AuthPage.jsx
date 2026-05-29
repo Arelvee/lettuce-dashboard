@@ -6,6 +6,7 @@ import {
   signInWithEmail,
   signUpWithEmail,
 } from "../services/authRest";
+import ThesisLogo from "../components/common/ThesisLogo";
 
 const modes = {
   login: { title: "Sign in", icon: LockKeyhole },
@@ -75,22 +76,25 @@ export default function AuthPage({ onBack, onAuthenticated }) {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto grid min-h-screen max-w-7xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
-        <section className="flex flex-col justify-between rounded-lg bg-cover bg-center p-6 sm:p-8"
+        <section className="relative flex flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-6 sm:p-8"
           style={{
             backgroundImage:
-              "linear-gradient(180deg, rgba(2,6,23,0.26), rgba(2,6,23,0.92)), url('https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=1200&q=85')",
+              "linear-gradient(180deg, rgba(2,6,23,0.18), rgba(2,6,23,0.92)), url('https://commons.wikimedia.org/wiki/Special:Redirect/file/Lettuce_in_Vertical_Farm.jpg')",
           }}
         >
-          <button
-            type="button"
-            onClick={onBack}
-            className="focus-ring inline-flex h-10 w-fit items-center gap-2 rounded-lg bg-white/10 px-3 text-sm font-semibold backdrop-blur hover:bg-white/20"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to thesis
-          </button>
+          <div className="relative z-10 flex items-center justify-between gap-3">
+            <ThesisLogo inverse />
+            <button
+              type="button"
+              onClick={onBack}
+              className="focus-ring inline-flex h-10 w-fit items-center gap-2 rounded-lg bg-white/10 px-3 text-sm font-semibold backdrop-blur transition hover:bg-white/20"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back
+            </button>
+          </div>
           <div className="mt-20 max-w-xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-emerald-300">Secure Access</p>
+            <p className="text-sm font-bold uppercase tracking-normal text-emerald-300">Secure Access</p>
             <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
               Crop monitoring, prediction, and decision support in one workspace.
             </h1>
@@ -98,12 +102,18 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               Accounts use email-based authentication. New users verify their email before dashboard access.
             </p>
           </div>
+          <a
+            href="https://commons.wikimedia.org/wiki/File:Lettuce_in_Vertical_Farm.jpg"
+            className="absolute bottom-3 right-3 rounded bg-slate-950/55 px-2 py-1 text-[10px] font-medium text-white/75 backdrop-blur transition hover:text-white"
+          >
+            Photo: Bright Agrotech / CC BY-SA 4.0
+          </a>
         </section>
 
         <section className="flex items-center justify-center">
-          <div className="w-full max-w-md rounded-lg border border-white/10 bg-white p-5 text-slate-950 shadow-2xl sm:p-6">
+          <div className="w-full max-w-md rounded-lg border border-emerald-100 bg-white p-5 text-slate-950 shadow-2xl shadow-emerald-950/10 sm:p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-600 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-700 text-white">
                 <ActiveIcon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
@@ -116,15 +126,17 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               <button
                 type="button"
                 onClick={() => setMode("login")}
-                className={`focus-ring rounded-lg px-3 py-2 text-sm font-semibold ${mode === "login" ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700"}`}
+                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "login" ? "bg-emerald-700 text-white" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
               >
+                <LockKeyhole className="h-4 w-4" aria-hidden="true" />
                 Login
               </button>
               <button
                 type="button"
                 onClick={() => setMode("register")}
-                className={`focus-ring rounded-lg px-3 py-2 text-sm font-semibold ${mode === "register" ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700"}`}
+                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "register" ? "bg-emerald-700 text-white" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
               >
+                <UserPlus className="h-4 w-4" aria-hidden="true" />
                 Register
               </button>
             </div>
@@ -137,7 +149,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     <input
                       value={form.fullName}
                       onChange={(event) => updateField("fullName", event.target.value)}
-                      className="focus-ring mt-1 h-11 w-full rounded-lg border border-slate-200 px-3"
+                      className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
                       required
                     />
                   </label>
@@ -146,7 +158,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     <input
                       value={form.institution}
                       onChange={(event) => updateField("institution", event.target.value)}
-                      className="focus-ring mt-1 h-11 w-full rounded-lg border border-slate-200 px-3"
+                      className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
                     />
                   </label>
                 </>
@@ -160,7 +172,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     type="email"
                     value={form.email}
                     onChange={(event) => updateField("email", event.target.value)}
-                    className="focus-ring h-11 w-full rounded-lg border border-slate-200 pl-10 pr-3"
+                    className="focus-ring h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 pl-10 pr-3"
                     required
                   />
                 </div>
@@ -173,7 +185,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     type="password"
                     value={form.password}
                     onChange={(event) => updateField("password", event.target.value)}
-                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-slate-200 px-3"
+                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
                     minLength={6}
                     required
                   />
@@ -187,7 +199,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                     type="password"
                     value={form.confirmPassword}
                     onChange={(event) => updateField("confirmPassword", event.target.value)}
-                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-slate-200 px-3"
+                    className="focus-ring mt-1 h-11 w-full rounded-lg border border-emerald-100 bg-emerald-50/40 px-3"
                     minLength={6}
                     required
                   />
@@ -203,8 +215,9 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               <button
                 type="submit"
                 disabled={busy}
-                className="focus-ring inline-flex h-11 w-full items-center justify-center rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-70"
+                className="focus-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-70"
               >
+                <ActiveIcon className="h-4 w-4" aria-hidden="true" />
                 {busy ? "Processing..." : modes[mode].title}
               </button>
             </form>
@@ -223,4 +236,3 @@ export default function AuthPage({ onBack, onAuthenticated }) {
     </main>
   );
 }
-

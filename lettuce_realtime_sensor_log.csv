@@ -1,0 +1,2 @@
+timestamp,humidity,atemp,wtemp,tds,ec,light,ppfd,r445,r480,ph,pump_on,source,arduino_payload_json
+2026-05-29T21:31:37+08:00,82.12,27.63,17.77,633.73,990.21,18205.0,337.13,0.1039,0.1434,6.1449,False,fallback-after-1-weather-errors,"{""timestamp"": ""2026-05-29T21:31:37+08:00"", ""humidity"": 82.12, ""tempDHT"": 27.63, ""tempDallas"": 17.77, ""tdsValue"": 633.73, ""ecValue"": 990.21, ""lightIntensity"": 18205.0, ""ppfd"": 337.13, ""reflect_445"": 0.1039, ""reflect_480"": 0.1434, ""pHValue"": 6.1449, ""pump_on"": false}"

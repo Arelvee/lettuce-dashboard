@@ -8,10 +8,10 @@ export const SUPABASE_ANON_KEY =
 export const REFRESH_SECONDS = Number(import.meta.env.VITE_REFRESH_SECONDS || 30);
 
 export const TABLES = {
+  cropBatches: "crop_batches",
   sensorReadings: "sensor_readings",
   denoisedReadings: "denoised_readings",
   predictions: "predictions",
   pumpEvents: "pump_events",
   weatherSnapshots: "weather_snapshots",
 };
-

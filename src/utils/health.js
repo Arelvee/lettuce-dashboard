@@ -57,10 +57,13 @@ const advice = {
 export function getSensorStatus(key, value) {
   const meta = SENSOR_META[key];
   if (!meta || value === null || value === undefined) {
-    return { label: "Unknown", tone: "slate", score: 0 };
+    return { label: "No reading", tone: "slate", score: 0, advice: "No data received from this sensor yet." };
   }
 
   const numeric = Number(value);
+  if (Number.isNaN(numeric)) {
+    return { label: "No reading", tone: "slate", score: 0, advice: "Sensor value is not readable yet." };
+  }
   if (numeric < meta.min) {
     return {
       label: "Low",
