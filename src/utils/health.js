@@ -54,33 +54,98 @@ const advice = {
   },
 };
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getRange(meta) {
+  return Math.max(meta.max - meta.min, Number.EPSILON);
+}
+
+function getTargetFitScore(meta, numeric) {
+  const range = getRange(meta);
+  const center = (meta.min + meta.max) / 2;
+
+  if (numeric >= meta.min && numeric <= meta.max) {
+    const halfRange = range / 2;
+    const distanceFromCenter = Math.abs(numeric - center) / halfRange;
+    return Math.round(clamp(100 - distanceFromCenter * 15, 85, 100));
+  }
+
+  const deviation = numeric < meta.min ? meta.min - numeric : numeric - meta.max;
+  const outsideSeverity = deviation / range;
+  return Math.round(clamp(85 - outsideSeverity * 70, 0, 84));
+}
+
+function getHeatPosition(meta, numeric) {
+  const range = getRange(meta);
+  const extendedMin = meta.min - range;
+  const extendedMax = meta.max + range;
+  return clamp(((numeric - extendedMin) / (extendedMax - extendedMin)) * 100, 0, 100);
+}
+
 export function getSensorStatus(key, value) {
   const meta = SENSOR_META[key];
   if (!meta || value === null || value === undefined) {
-    return { label: "No reading", tone: "slate", score: 0, advice: "No data received from this sensor yet." };
+    return {
+      label: "No reading",
+      tone: "slate",
+      score: 0,
+      position: 0,
+      direction: "missing",
+      advice: "No data received from this sensor yet.",
+    };
   }
 
   const numeric = Number(value);
   if (Number.isNaN(numeric)) {
-    return { label: "No reading", tone: "slate", score: 0, advice: "Sensor value is not readable yet." };
+    return {
+      label: "No reading",
+      tone: "slate",
+      score: 0,
+      position: 0,
+      direction: "missing",
+      advice: "Sensor value is not readable yet.",
+    };
   }
+
+  const score = getTargetFitScore(meta, numeric);
+  const position = getHeatPosition(meta, numeric);
+  const range = getRange(meta);
+
   if (numeric < meta.min) {
+    const severity = (meta.min - numeric) / range;
     return {
       label: "Low",
-      tone: "amber",
-      score: Math.max(0, 100 - ((meta.min - numeric) / Math.max(meta.min, 1)) * 100),
+      tone: severity >= 0.45 ? "rose" : "amber",
+      score,
+      position,
+      direction: "low",
+      severity,
       advice: advice[key]?.low,
     };
   }
   if (numeric > meta.max) {
+    const severity = (numeric - meta.max) / range;
     return {
       label: "High",
-      tone: "rose",
-      score: Math.max(0, 100 - ((numeric - meta.max) / Math.max(meta.max, 1)) * 100),
+      tone: severity >= 0.45 ? "rose" : "amber",
+      score,
+      position,
+      direction: "high",
+      severity,
       advice: advice[key]?.high,
     };
   }
-  return { label: "Optimal", tone: "emerald", score: 100, advice: "Within target range." };
+  return {
+    label: "Optimal",
+    tone: "emerald",
+    score,
+    position,
+    direction: "target",
+    severity: 0,
+    advice: score >= 95 ? "Centered in the target range." : "Within range but away from the ideal center.",
+  };
 }
 
 export function getOverallHealth(reading) {

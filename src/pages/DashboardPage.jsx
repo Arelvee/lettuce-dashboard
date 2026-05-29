@@ -124,9 +124,9 @@ export default function DashboardPage({ profile }) {
         <MetricCard
           icon={ShieldCheck}
           label="Overall Health"
-          value={health}
+          value={String(health)}
           unit="%"
-          detail="Based on sensor target ranges"
+          detail="Target-fit score across live sensor ranges"
           tone={health >= 85 ? "emerald" : health >= 65 ? "amber" : "rose"}
         />
       </section>
