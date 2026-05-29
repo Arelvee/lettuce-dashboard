@@ -1,4 +1,4 @@
-import { Building2, LocateFixed, Map, MapPinned, Mountain, Navigation, Network, Router, Satellite, Search } from "lucide-react";
+import { Building2, Check, ChevronDown, LocateFixed, Map, MapPinned, Mountain, Navigation, Network, Router, Satellite, Search } from "lucide-react";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import StatusBadge from "../common/StatusBadge";
 
@@ -25,7 +25,7 @@ function isPrivateIp(ip) {
 const mapModes = [
   { key: "map", label: "Map", icon: Map, detail: "Street basemap" },
   { key: "satellite", label: "Satellite", icon: Satellite, detail: "World imagery" },
-  { key: "terrain", label: "Terrain", icon: Mountain, detail: "Topographic terrain" },
+  { key: "terrain", label: "Terrain", icon: Mountain, detail: "Elevation relief" },
   { key: "3d", label: "3D View", icon: Building2, detail: "3D buildings" },
 ];
 
@@ -60,6 +60,7 @@ export default function LocationPanel({ profile, latestReading }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [mapMode, setMapMode] = useState("map");
+  const [mapMenuOpen, setMapMenuOpen] = useState(false);
 
   useEffect(() => {
     setLocation(initialLocation);
@@ -159,6 +160,9 @@ export default function LocationPanel({ profile, latestReading }) {
     }
   }
 
+  const currentMapMode = mapModes.find((mode) => mode.key === mapMode) || mapModes[0];
+  const CurrentMapIcon = currentMapMode.icon;
+
   return (
     <section className="surface overflow-hidden">
       <div className="flex flex-col gap-4 border-b border-slate-200 p-4 sm:p-5 dark:border-white/10">
@@ -173,29 +177,6 @@ export default function LocationPanel({ profile, latestReading }) {
         <StatusBadge tone={location.source === "device" ? "emerald" : location.source === "ip" ? "sky" : "amber"}>
           {location.source === "device" ? "auto GPS" : location.source}
         </StatusBadge>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-          {mapModes.map(({ key, label, icon: Icon, detail }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setMapMode(key)}
-              className={`focus-ring inline-flex min-h-12 items-center justify-start gap-2 rounded-lg border px-3 py-2 text-left text-sm font-bold transition ${
-                mapMode === key
-                  ? "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950"
-                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
-              }`}
-            >
-              <Icon className="h-4 w-4" aria-hidden="true" />
-              <span>
-                <span className="block">{label}</span>
-                <span className={`block text-xs font-semibold ${mapMode === key ? "text-white/70 dark:text-slate-600" : "text-slate-400"}`}>
-                  {detail}
-                </span>
-              </span>
-            </button>
-          ))}
         </div>
       </div>
 
@@ -280,20 +261,59 @@ export default function LocationPanel({ profile, latestReading }) {
               }
             >
               <MapLibreView
+                key={`${mapMode}-${fixedCoordinate(location.latitude)}-${fixedCoordinate(location.longitude)}`}
                 latitude={location.latitude}
                 longitude={location.longitude}
                 mode={mapMode}
                 label={location.address || location.label}
               />
             </Suspense>
-            <div className="pointer-events-none absolute left-4 top-4 rounded-lg border border-white/60 bg-white/90 px-3 py-2 text-sm shadow-soft backdrop-blur dark:border-white/10 dark:bg-slate-950/90">
-              <div className="flex items-center gap-2 font-bold text-slate-950 dark:text-white">
-                <MapPinned className="h-4 w-4 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
-                {mapModes.find((mode) => mode.key === mapMode)?.label}
-              </div>
-              <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                {location.address || location.label}
-              </p>
+            <div className="absolute left-4 top-4 z-10 w-[min(18rem,calc(100%-2rem))]">
+              <button
+                type="button"
+                onClick={() => setMapMenuOpen((open) => !open)}
+                className="focus-ring flex w-full items-center justify-between gap-3 rounded-lg border border-white/65 bg-white/92 px-3 py-2 text-left text-sm font-bold text-slate-950 shadow-soft backdrop-blur transition hover:bg-white dark:border-white/10 dark:bg-slate-950/90 dark:text-white dark:hover:bg-slate-900/95"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <CurrentMapIcon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+                  <span className="min-w-0">
+                    <span className="block">{currentMapMode.label}</span>
+                    <span className="block truncate text-xs font-semibold text-slate-500 dark:text-slate-300">
+                      {location.address || location.label}
+                    </span>
+                  </span>
+                </span>
+                <ChevronDown className={`h-4 w-4 shrink-0 transition ${mapMenuOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+              </button>
+
+              {mapMenuOpen ? (
+                <div className="mt-2 overflow-hidden rounded-lg border border-white/65 bg-white/95 p-1.5 shadow-2xl shadow-slate-950/15 backdrop-blur dark:border-white/10 dark:bg-slate-950/95">
+                  {mapModes.map(({ key, label, icon: Icon, detail }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        setMapMode(key);
+                        setMapMenuOpen(false);
+                      }}
+                      className={`focus-ring flex w-full items-center justify-between gap-3 rounded-md px-2.5 py-2 text-left text-sm font-bold transition ${
+                        mapMode === key
+                          ? "bg-emerald-50 text-emerald-900 dark:bg-emerald-400/15 dark:text-emerald-100"
+                          : "text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/8"
+                      }`}
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span className="min-w-0">
+                          <span className="block">{label}</span>
+                          <span className="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{detail}</span>
+                        </span>
+                      </span>
+                      {mapMode === key ? <Check className="h-4 w-4 shrink-0" aria-hidden="true" /> : null}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -303,7 +323,7 @@ export default function LocationPanel({ profile, latestReading }) {
               {location.address || location.label}
             </div>
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              {mapMode === "terrain" ? "Topographic terrain with the same farm pin" : mapMode === "3d" ? "3D building view with the same farm pin" : `${mapModes.find((mode) => mode.key === mapMode)?.label} view with the same farm pin`}
+              {mapMode === "terrain" ? "Elevation terrain with shaded relief and the same farm pin" : mapMode === "3d" ? "3D terrain with nearby map buildings and the same farm pin" : `${mapModes.find((mode) => mode.key === mapMode)?.label} view with the same farm pin`}
             </span>
           </div>
         </div>

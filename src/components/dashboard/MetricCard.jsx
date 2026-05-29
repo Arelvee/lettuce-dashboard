@@ -3,23 +3,23 @@ import { formatNumber } from "../../utils/format";
 export default function MetricCard({ icon: Icon, label, value, unit, detail, tone = "emerald", onClick }) {
   const toneMap = {
     emerald: {
-      icon: "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-300/12 dark:text-emerald-200 dark:ring-emerald-300/20",
+      icon: "bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-700 text-white ring-1 ring-emerald-200/70 shadow-lg shadow-emerald-900/20 dark:from-emerald-300 dark:via-emerald-500 dark:to-teal-700 dark:!text-white dark:ring-emerald-200/25",
       accent: "bg-gradient-to-b from-emerald-400 to-teal-600",
     },
     sky: {
-      icon: "bg-sky-100 text-sky-800 ring-1 ring-sky-200 dark:bg-sky-300/12 dark:text-sky-200 dark:ring-sky-300/20",
+      icon: "bg-gradient-to-br from-sky-400 via-cyan-500 to-teal-700 text-white ring-1 ring-sky-200/70 shadow-lg shadow-sky-900/20 dark:from-sky-300 dark:via-cyan-500 dark:to-teal-700 dark:!text-white dark:ring-sky-200/25",
       accent: "bg-gradient-to-b from-sky-400 to-cyan-600",
     },
     amber: {
-      icon: "bg-amber-100 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-300/12 dark:text-amber-200 dark:ring-amber-300/20",
+      icon: "bg-gradient-to-br from-amber-300 via-orange-400 to-amber-700 text-white ring-1 ring-amber-200/80 shadow-lg shadow-amber-900/20 dark:from-amber-200 dark:via-orange-400 dark:to-amber-700 dark:!text-white dark:ring-amber-200/25",
       accent: "bg-gradient-to-b from-amber-300 to-orange-500",
     },
     rose: {
-      icon: "bg-rose-100 text-rose-800 ring-1 ring-rose-200 dark:bg-rose-300/12 dark:text-rose-200 dark:ring-rose-300/20",
+      icon: "bg-gradient-to-br from-rose-400 via-red-500 to-orange-700 text-white ring-1 ring-rose-200/70 shadow-lg shadow-rose-900/20 dark:from-rose-300 dark:via-red-500 dark:to-orange-700 dark:!text-white dark:ring-rose-200/25",
       accent: "bg-gradient-to-b from-rose-400 to-red-600",
     },
     slate: {
-      icon: "bg-slate-100 text-slate-700 ring-1 ring-slate-200 dark:bg-white/8 dark:text-slate-200 dark:ring-white/10",
+      icon: "bg-gradient-to-br from-slate-500 via-slate-700 to-slate-950 text-white ring-1 ring-slate-200/70 shadow-lg shadow-slate-900/20 dark:from-slate-200 dark:via-slate-500 dark:to-slate-800 dark:!text-white dark:ring-white/20",
       accent: "bg-gradient-to-b from-slate-400 to-slate-600",
     },
   };
@@ -47,8 +47,9 @@ export default function MetricCard({ icon: Icon, label, value, unit, detail, ton
             </div>
           </div>
           {Icon ? (
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${toneClasses.icon}`}>
-              <Icon className="h-5 w-5" aria-hidden="true" />
+            <div className={`relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg ${toneClasses.icon}`}>
+              <span className="pointer-events-none absolute inset-1 rounded-md bg-white/20" aria-hidden="true" />
+              <Icon className="relative z-10 h-6 w-6 stroke-[2.6]" aria-hidden="true" />
             </div>
           ) : null}
         </div>

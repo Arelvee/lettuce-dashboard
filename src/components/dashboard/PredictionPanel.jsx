@@ -1,23 +1,28 @@
-import { Brain, Gauge, Tags } from "lucide-react";
-import { formatDateTime, formatNumber, formatPercent, normalizeJson } from "../../utils/format";
+import { Brain, DatabaseZap, Gauge, Tags } from "lucide-react";
+import { formatDateTime, formatNumber, formatPercent } from "../../utils/format";
 import {
   getBatchAgeDays,
   getPredictionConfidence,
   getPredictionStageInfo,
   getYieldCountInfo,
-  normalizeProbabilityRows,
 } from "../../utils/prediction";
 import StatusBadge from "../common/StatusBadge";
 
 export default function PredictionPanel({ prediction, stalePrediction }) {
   const displayPrediction = prediction || stalePrediction;
   const isStale = !prediction && Boolean(stalePrediction);
-  const probabilities = normalizeJson(displayPrediction?.probabilities_json, {});
-  const probabilityRows = normalizeProbabilityRows(probabilities);
   const stageInfo = getPredictionStageInfo(displayPrediction);
   const yieldInfo = getYieldCountInfo(displayPrediction);
   const confidence = getPredictionConfidence(displayPrediction);
   const ageDays = getBatchAgeDays(displayPrediction);
+  const sampleCount = displayPrediction?.window_sample_count ?? displayPrediction?.sample_count ?? null;
+  const modelName = displayPrediction?.model_backend || displayPrediction?.model_name || "prediction row";
+  const action =
+    displayPrediction?.recommended_action ||
+    displayPrediction?.adjustment_summary ||
+    (displayPrediction?.priority_sensor
+      ? `Priority sensor to review: ${displayPrediction.priority_sensor}.`
+      : "Using the database prediction row as the source of truth.");
 
   return (
     <section className="surface overflow-hidden">
@@ -56,7 +61,7 @@ export default function PredictionPanel({ prediction, stalePrediction }) {
             <span className="ml-2 text-sm font-semibold text-slate-500 dark:text-slate-400">of {yieldInfo.slots} heads</span>
           </p>
           <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-            XGBoost regressor count output
+            Database regressor count output
           </p>
         </div>
         <div className="border-t border-slate-200 p-4 sm:border-t-0 sm:p-5 dark:border-white/10">
@@ -77,28 +82,39 @@ export default function PredictionPanel({ prediction, stalePrediction }) {
       </div>
 
       <div className="border-t border-slate-200 p-4 sm:p-5 dark:border-white/10">
-        {probabilityRows.length ? (
-          <div className="space-y-3">
-            {probabilityRows.map(({ stage, label, value }) => (
-              <div key={stage}>
-                <div className="flex items-center justify-between gap-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  <span className="truncate">{label}</span>
-                  <span>{formatPercent(value)}</span>
-                </div>
-                <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                  <div
-                    className="h-full rounded-full bg-emerald-500"
-                    style={{ width: `${Math.max(3, Math.min(100, Number(value) * 100))}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+          <DatabaseZap className="h-4 w-4 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+          Database Output
+        </div>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="panel-muted p-3">
+            <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Growth Stage</p>
+            <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">{stageInfo.label}</p>
           </div>
-        ) : (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            No probability data yet.
-          </p>
-        )}
+          <div className="panel-muted p-3">
+            <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Stage Confidence</p>
+            <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">
+              {confidence === null ? "--" : formatPercent(confidence)}
+            </p>
+          </div>
+          <div className="panel-muted p-3">
+            <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Raw Yield Estimate</p>
+            <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">
+              {yieldInfo.raw === null ? "--" : `${formatNumber(yieldInfo.raw, 1)} / ${yieldInfo.slots}`}
+            </p>
+          </div>
+          <div className="panel-muted p-3">
+            <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Window Samples</p>
+            <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">
+              {sampleCount === null ? modelName : `${sampleCount} samples`}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3 rounded-lg border border-emerald-200/70 bg-emerald-50/75 p-3 text-sm font-medium text-emerald-900 dark:border-emerald-300/15 dark:bg-emerald-400/10 dark:text-emerald-100">
+          {action}
+        </div>
       </div>
     </section>
   );
