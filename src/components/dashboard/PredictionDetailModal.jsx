@@ -6,6 +6,7 @@ import {
   getPredictionConfidence,
   getPredictionStageInfo,
   getYieldExplanation,
+  getYieldPredictionInterval,
 } from "../../utils/prediction";
 import StatusBadge from "../common/StatusBadge";
 
@@ -46,6 +47,7 @@ export default function PredictionDetailModal({
   const confidence = getPredictionConfidence(prediction) ?? getPredictionConfidence(latestReading);
   const timeline = getGrowthTimeline({ prediction, latestReading, cropBatches });
   const yieldInfo = getYieldExplanation(prediction);
+  const intervalInfo = getYieldPredictionInterval(prediction);
   const title = type === "stage" ? "Growth Stage Timeline" : "Yield Count Details";
 
   return (
@@ -155,7 +157,7 @@ export default function PredictionDetailModal({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="panel-muted p-3">
                   <Leaf className="h-4 w-4 text-sky-600 dark:text-sky-300" aria-hidden="true" />
                   <p className="mt-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Alive Slots</p>
@@ -179,7 +181,29 @@ export default function PredictionDetailModal({
                       : `${formatNumber(yieldInfo.yield_confidence_pct, 1)}%`}
                   </p>
                 </div>
+                <div className="panel-muted p-3">
+                  <Gauge className="h-4 w-4 text-sky-600 dark:text-sky-300" aria-hidden="true" />
+                  <p className="mt-2 text-xs font-semibold text-slate-500 dark:text-slate-400">Likely Range</p>
+                  <p className="mt-1 text-lg font-bold text-slate-950 dark:text-white">
+                    {intervalInfo.available
+                      ? `${formatNumber(intervalInfo.low, 1)}-${formatNumber(intervalInfo.high, 1)} / ${intervalInfo.slots}`
+                      : "--"}
+                  </p>
+                </div>
               </div>
+
+              {intervalInfo.available ? (
+                <div className="rounded-lg border border-sky-200/70 bg-sky-50/80 p-3 text-sm dark:border-sky-300/15 dark:bg-sky-400/10">
+                  <p className="font-semibold text-sky-900 dark:text-sky-100">Yield prediction interval</p>
+                  <p className="mt-1 text-sky-800 dark:text-sky-100/80">
+                    The regressor predicts {formatYieldCount(prediction)} heads, with a likely range of{" "}
+                    {formatNumber(intervalInfo.low, 1)} to {formatNumber(intervalInfo.high, 1)} occupied slots out of 6.
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-sky-700 dark:text-sky-100/70">
+                    Yield confidence {intervalInfo.confidencePct === null ? "--" : `${formatNumber(intervalInfo.confidencePct, 1)}%`}.
+                  </p>
+                </div>
+              ) : null}
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <div>

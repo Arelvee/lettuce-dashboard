@@ -23,7 +23,7 @@ function healthTone(health) {
 
 export default function RecentReadingsTable({ readings }) {
   return (
-    <section className="surface overflow-hidden">
+    <section className="surface flex h-full min-h-[420px] flex-col overflow-hidden">
       <div className="flex flex-col gap-1 border-b border-slate-200 p-4 sm:flex-row sm:items-end sm:justify-between sm:p-5 dark:border-white/10">
         <div>
           <p className="section-title">Recent Samples</p>
@@ -32,7 +32,7 @@ export default function RecentReadingsTable({ readings }) {
         <p className="text-sm text-slate-500 dark:text-slate-400">Newest first</p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="flex-1 overflow-x-auto">
         <table className="min-w-[1120px] w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-normal text-slate-500 dark:bg-white/5 dark:text-slate-400">
             <tr>

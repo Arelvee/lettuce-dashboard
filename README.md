@@ -64,6 +64,7 @@ before they can sign in.
 The dashboard reads:
 
 ```text
+crop_batches
 sensor_readings
 denoised_readings
 predictions
@@ -71,11 +72,14 @@ pump_events
 weather_snapshots
 ```
 
-Use the `supabase_schema.sql` file in the parent folder first, then run
-`lettuce_rtos_simulator.py` so the dashboard has live data.
+Use `C:\Users\sayav\OneDrive\Desktop\Lettuce2026\supabase_schema.sql` first, then run
+`lettucertos.py` so the dashboard has live sensor readings and prediction output.
 
 ## Notes
 
 - If Supabase is unreachable or empty, the UI automatically shows preview data.
 - The dashboard refreshes every `VITE_REFRESH_SECONDS` seconds.
 - It expects timestamps in `Asia/Manila` compatible ISO/timestamptz format.
+- Yield output is a 0-6 lettuce slot count. The legacy SQL column
+  `predicted_yield_g` is displayed as count, not grams.
+- Sensor target ranges match the current Manila/Pasig `lettucertos.py` runtime.

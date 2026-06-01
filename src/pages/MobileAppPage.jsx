@@ -72,6 +72,13 @@ export default function MobileAppPage() {
           </div>
 
           <div className="phone-float relative z-10 mx-auto w-full max-w-[320px] rounded-[2rem] border border-white/20 bg-slate-900 p-3 shadow-2xl shadow-emerald-950/50">
+            {/* Coming Soon animation badge */}
+            <div className="absolute -top-3 -right-3 z-20">
+              <span className="inline-flex items-center rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white shadow motion-safe:animate-pulse">
+                Coming Soon
+              </span>
+            </div>
+
             <div className="rounded-[1.55rem] border border-white/10 bg-slate-950 p-4">
               <div className="mx-auto h-1.5 w-16 rounded-full bg-white/20" />
               <div className="mt-5 flex items-center justify-between">

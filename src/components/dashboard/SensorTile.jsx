@@ -54,7 +54,7 @@ export default function SensorTile({ sensorKey, value, connectionStatus = "onlin
   const iconClass = iconStyles[status.tone] || iconStyles.slate;
 
   return (
-    <article className={`surface min-h-[174px] overflow-hidden p-4 ${tileClass}`}>
+    <article className={`surface h-full min-h-[174px] overflow-hidden p-4 ${tileClass}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 gap-3">
           <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}>

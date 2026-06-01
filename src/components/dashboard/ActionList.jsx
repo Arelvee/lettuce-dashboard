@@ -23,7 +23,7 @@ export default function ActionList({ latestReading, connectionStatus = "online" 
             : "Needs action";
 
   return (
-    <section className="surface overflow-hidden">
+    <section className="surface h-full overflow-hidden">
       <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-4 sm:p-5 dark:border-white/10">
         <div>
           <p className="section-title">Crop Health</p>

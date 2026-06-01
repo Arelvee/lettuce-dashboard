@@ -4,6 +4,7 @@ import {
   getBatchAgeDays,
   getPredictionConfidence,
   getPredictionStageInfo,
+  getYieldPredictionInterval,
   getYieldCountInfo,
 } from "../../utils/prediction";
 import StatusBadge from "../common/StatusBadge";
@@ -13,19 +14,22 @@ export default function PredictionPanel({ prediction, stalePrediction }) {
   const isStale = !prediction && Boolean(stalePrediction);
   const stageInfo = getPredictionStageInfo(displayPrediction);
   const yieldInfo = getYieldCountInfo(displayPrediction);
+  const intervalInfo = getYieldPredictionInterval(displayPrediction);
   const confidence = getPredictionConfidence(displayPrediction);
   const ageDays = getBatchAgeDays(displayPrediction);
   const sampleCount = displayPrediction?.window_sample_count ?? displayPrediction?.sample_count ?? null;
   const modelName = displayPrediction?.model_backend || displayPrediction?.model_name || "prediction row";
+  const prioritySensor = String(displayPrediction?.priority_sensor || "").trim().toLowerCase();
+  const hasPrioritySensor = prioritySensor && prioritySensor !== "none" && prioritySensor !== "no priority";
   const action =
     displayPrediction?.recommended_action ||
     displayPrediction?.adjustment_summary ||
-    (displayPrediction?.priority_sensor
+    (hasPrioritySensor
       ? `Priority sensor to review: ${displayPrediction.priority_sensor}.`
       : "Using the database prediction row as the source of truth.");
 
   return (
-    <section className="surface overflow-hidden">
+    <section className="surface h-full overflow-hidden">
       <div className="flex flex-col gap-4 border-b border-slate-200 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5 dark:border-white/10">
         <div>
           <p className="section-title">{isStale ? "Last Prediction" : "Latest Prediction"}</p>
@@ -35,7 +39,7 @@ export default function PredictionPanel({ prediction, stalePrediction }) {
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {displayPrediction
               ? `${stageInfo.label} / ${formatDateTime(displayPrediction.timestamp)}`
-              : "Requires sensor window from BiLSTM-Attention features."}
+              : "Requires a fresh 10-sample TFLite + XGBoost sensor window."}
           </p>
         </div>
         <StatusBadge tone={isStale ? "amber" : Number(confidence || 0) >= 0.75 ? "emerald" : "amber"}>
@@ -61,8 +65,19 @@ export default function PredictionPanel({ prediction, stalePrediction }) {
             <span className="ml-2 text-sm font-semibold text-slate-500 dark:text-slate-400">of {yieldInfo.slots} heads</span>
           </p>
           <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-            Database regressor count output
+            Database regressor slot-count output
           </p>
+          {intervalInfo.available ? (
+            <div className="mt-3 rounded-lg border border-sky-200/70 bg-sky-50/80 p-3 dark:border-sky-300/15 dark:bg-sky-400/10">
+              <p className="text-[11px] font-bold uppercase text-sky-700 dark:text-sky-200">Prediction Interval</p>
+              <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">
+                {formatNumber(intervalInfo.low, 1)}-{formatNumber(intervalInfo.high, 1)} of {intervalInfo.slots} heads
+              </p>
+              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                Yield confidence {intervalInfo.confidencePct === null ? "--" : `${formatNumber(intervalInfo.confidencePct, 1)}%`}
+              </p>
+            </div>
+          ) : null}
         </div>
         <div className="border-t border-slate-200 p-4 sm:border-t-0 sm:p-5 dark:border-white/10">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
@@ -102,6 +117,14 @@ export default function PredictionPanel({ prediction, stalePrediction }) {
             <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Raw Yield Estimate</p>
             <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">
               {yieldInfo.raw === null ? "--" : `${formatNumber(yieldInfo.raw, 1)} / ${yieldInfo.slots}`}
+            </p>
+          </div>
+          <div className="panel-muted p-3">
+            <p className="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400">Yield Range</p>
+            <p className="mt-1 text-sm font-bold text-slate-950 dark:text-white">
+              {intervalInfo.available
+                ? `${formatNumber(intervalInfo.low, 1)}-${formatNumber(intervalInfo.high, 1)} / ${intervalInfo.slots}`
+                : "--"}
             </p>
           </div>
           <div className="panel-muted p-3">

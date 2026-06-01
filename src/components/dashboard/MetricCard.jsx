@@ -30,7 +30,7 @@ export default function MetricCard({ icon: Icon, label, value, unit, detail, ton
     <Component
       type={onClick ? "button" : undefined}
       onClick={onClick}
-      className={`surface relative flex min-h-[136px] w-full overflow-hidden p-4 text-left ${
+      className={`surface relative flex h-full min-h-[148px] w-full overflow-hidden p-4 text-left ${
         onClick ? "focus-ring cursor-pointer transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-950/10" : ""
       }`}
     >

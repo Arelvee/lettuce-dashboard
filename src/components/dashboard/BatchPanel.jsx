@@ -177,7 +177,7 @@ export default function BatchPanel({ cropBatches = [], isMock, latestReading, la
   }
 
   return (
-    <section className="surface overflow-hidden">
+    <section className="surface h-full overflow-hidden">
       <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-gradient-to-r from-white to-emerald-50/60 p-4 sm:p-5 dark:border-white/10 dark:from-slate-900 dark:to-emerald-950/30">
         <div>
           <p className="section-title">Batch Tracker</p>

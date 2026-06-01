@@ -63,7 +63,7 @@ export default function PredictionHistoryChart({ predictions }) {
     : 1;
 
   return (
-    <section className="surface flex min-h-[420px] flex-col self-start overflow-hidden">
+    <section className="surface flex h-full min-h-[420px] flex-col overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
         <div>
           <p className="section-title">Prediction History</p>

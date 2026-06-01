@@ -28,7 +28,7 @@ export default function NutrientTrendChart({ readings }) {
   const chartData = sortAscending(readings.slice(0, 72));
 
   return (
-    <section className="surface overflow-hidden">
+    <section className="surface flex h-full min-h-[420px] flex-col overflow-hidden">
       <div className="flex flex-col gap-1 border-b border-slate-200 p-4 sm:flex-row sm:items-end sm:justify-between sm:p-5 dark:border-white/10">
         <div>
           <p className="section-title">Nutrients</p>
@@ -37,7 +37,7 @@ export default function NutrientTrendChart({ readings }) {
         <p className="text-sm text-slate-500 dark:text-slate-400">Reservoir stability</p>
       </div>
 
-      <div className="h-[300px] w-full p-4 sm:p-5">
+      <div className="min-h-[300px] flex-1 p-4 sm:p-5">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />

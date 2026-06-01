@@ -51,7 +51,7 @@ export default function DeviceStatusPanel({ latestReading, connectionStatus, sen
   const healthPercent = Math.round((readyCount / sensorKeys.length) * 100);
 
   return (
-    <section className="surface overflow-hidden">
+    <section className="surface h-full overflow-hidden">
       <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr_0.9fr]">
         <div className="border-b border-slate-200 p-4 sm:p-5 lg:border-b-0 lg:border-r dark:border-white/10">
           <div className="flex items-start gap-3">

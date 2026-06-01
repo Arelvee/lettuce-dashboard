@@ -10,8 +10,8 @@ export const GROWTH_STAGE_LABELS = {
 
 export const STAGE_AGE_BANDS = [
   { stage: "Seed Sowing", startDay: 0, endDay: 6, expectedYieldSlots: 0 },
-  { stage: "Germination", startDay: 6, endDay: 13, expectedYieldSlots: 1 },
-  { stage: "Leaf Development", startDay: 13, endDay: 31, expectedYieldSlots: 3 },
+  { stage: "Germination", startDay: 6, endDay: 13, expectedYieldSlots: 4 },
+  { stage: "Leaf Development", startDay: 13, endDay: 31, expectedYieldSlots: 5 },
   { stage: "Head Formation", startDay: 31, endDay: 44, expectedYieldSlots: 5 },
   { stage: "Harvesting", startDay: 44, endDay: 56, expectedYieldSlots: 6 },
 ];
@@ -24,6 +24,12 @@ function isMeaningful(value) {
 
 function firstMeaningful(candidates) {
   return candidates.find(isMeaningful);
+}
+
+function prioritySensorValue(value) {
+  if (!isMeaningful(value)) return null;
+  const normalized = String(value).trim().toLowerCase();
+  return normalized === "none" || normalized === "no priority" ? null : value;
 }
 
 function normalizeProbability(value) {
@@ -91,6 +97,7 @@ function findYieldValue(prediction) {
     prediction?.predicted_yield_count,
     prediction?.yield_count,
     prediction?.predicted_yield,
+    // Legacy Supabase column name; value is occupied lettuce slots/count, not grams.
     prediction?.predicted_yield_g,
   ];
   return candidates.find((value) => value !== null && value !== undefined && !Number.isNaN(Number(value)));
@@ -224,7 +231,8 @@ export function getYieldExplanation(prediction) {
     );
   }
   if (empty > 0) reasons.push(`${empty} slot(s) are predicted empty or at risk from the current sensor window.`);
-  if (prediction?.priority_sensor) reasons.push(`Priority sensor to adjust: ${prediction.priority_sensor}.`);
+  const prioritySensor = prioritySensorValue(prediction?.priority_sensor) || prioritySensorValue(adjustments.priority_sensor);
+  if (prioritySensor) reasons.push(`Priority sensor to adjust: ${prioritySensor}.`);
   const normalizedYieldConfidence = normalizeProbability(prediction?.yield_confidence);
 
   return {
@@ -236,7 +244,7 @@ export function getYieldExplanation(prediction) {
       prediction?.yield_confidence_pct ?? (normalizedYieldConfidence === null ? null : normalizedYieldConfidence * 100),
     crop_status: prediction?.crop_status,
     risk_score: prediction?.risk_score,
-    priority_sensor: prediction?.priority_sensor || adjustments.priority_sensor || "none",
+    priority_sensor: prioritySensor || "none",
     reasons,
     recommended_actions: [
       prediction?.recommended_action,
@@ -257,6 +265,53 @@ export function getYieldCountInfo(prediction, slots = LETTUCE_SLOT_COUNT) {
   const raw = Number(rawValue);
   const count = Math.max(0, Math.min(slots, Math.round(raw)));
   return { count, raw, slots };
+}
+
+export function getYieldPredictionInterval(prediction, slots = LETTUCE_SLOT_COUNT) {
+  const interval = parseJson(prediction?.yield_prediction_interval_json, {});
+  const lowValue = firstMeaningful([
+    interval.low,
+    interval.lower,
+    interval.min,
+    interval.lower_bound,
+  ]);
+  const highValue = firstMeaningful([
+    interval.high,
+    interval.upper,
+    interval.max,
+    interval.upper_bound,
+  ]);
+  const confidenceValue = firstMeaningful([
+    prediction?.yield_confidence_pct,
+    prediction?.yield_confidence,
+    interval.confidence_pct,
+    interval.confidence,
+  ]);
+  const confidence = normalizeProbability(confidenceValue);
+
+  if (lowValue === undefined || highValue === undefined) {
+    return {
+      available: false,
+      low: null,
+      high: null,
+      slots,
+      unit: interval.unit || "occupied_slots_out_of_6",
+      confidence,
+      confidencePct: confidence === null ? null : confidence * 100,
+    };
+  }
+
+  const low = Math.max(0, Math.min(slots, Number(lowValue)));
+  const high = Math.max(0, Math.min(slots, Number(highValue)));
+  return {
+    available: !Number.isNaN(low) && !Number.isNaN(high),
+    low: Math.min(low, high),
+    high: Math.max(low, high),
+    slots,
+    unit: interval.unit || "occupied_slots_out_of_6",
+    confidence,
+    confidencePct: confidence === null ? null : confidence * 100,
+  };
 }
 
 export function formatYieldCount(prediction, slots = LETTUCE_SLOT_COUNT) {

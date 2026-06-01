@@ -16,8 +16,8 @@ import DeviceStatusPanel from "../components/dashboard/DeviceStatusPanel";
 import MetricCard from "../components/dashboard/MetricCard";
 import OperationsPanel from "../components/dashboard/OperationsPanel";
 import PredictionDetailModal from "../components/dashboard/PredictionDetailModal";
-import PredictionPanel from "../components/dashboard/PredictionPanel";
 import SensorTile from "../components/dashboard/SensorTile";
+import WaterTankPanel from "../components/dashboard/WaterTankPanel";
 import LocationPanel from "../components/location/LocationPanel";
 import RecentReadingsTable from "../components/table/RecentReadingsTable";
 import { useDashboardData } from "../hooks/useDashboardData";
@@ -33,7 +33,9 @@ import {
   getYieldCountInfo,
 } from "../utils/prediction";
 
-const sensorOrder = Object.keys(SENSOR_META);
+const waterSensorOrder = ["wtemp", "ph", "tds", "ec"];
+const allSensorOrder = Object.keys(SENSOR_META);
+const environmentSensorOrder = allSensorOrder.filter((sensorKey) => !waterSensorOrder.includes(sensorKey));
 
 export default function DashboardPage({ profile }) {
   const { data, loading, error, lastRefresh, refresh } = useDashboardData();
@@ -74,7 +76,7 @@ export default function DashboardPage({ profile }) {
       : "Age-stage confidence until ML window completes";
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <DashboardHeader
         loading={loading}
         error={error}
@@ -90,7 +92,7 @@ export default function DashboardPage({ profile }) {
         </div>
       ) : null}
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid auto-rows-fr gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           icon={Sprout}
           label="Growth Stage"
@@ -131,12 +133,18 @@ export default function DashboardPage({ profile }) {
         />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(21rem,0.9fr)]">
-        <div className="flex min-w-0 flex-col gap-4">
+      <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(22rem,0.9fr)]">
+        <div className="flex min-w-0 flex-col gap-5">
           <DeviceStatusPanel
             latestReading={latestReading}
             connectionStatus={connectionStatus}
-            sensorKeys={sensorOrder}
+            sensorKeys={allSensorOrder}
+          />
+
+          <WaterTankPanel
+            latestReading={latestReading}
+            pumpEvent={latestPump}
+            connectionStatus={connectionStatus}
           />
 
           {latestReading ? (
@@ -144,14 +152,14 @@ export default function DashboardPage({ profile }) {
               <div className="mb-3 flex items-end justify-between gap-3">
                 <div>
                   <p className="section-title">Sensor Monitoring</p>
-                  <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Live reading board</h2>
+                  <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Environment and canopy board</h2>
                 </div>
                 <p className="hidden text-sm text-slate-500 sm:block dark:text-slate-400">
                   {formatDateTime(latestReading.timestamp)}
                 </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-                {sensorOrder.map((sensorKey) => (
+              <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+                {environmentSensorOrder.map((sensorKey) => (
                   <SensorTile
                     key={sensorKey}
                     sensorKey={sensorKey}
@@ -168,18 +176,18 @@ export default function DashboardPage({ profile }) {
             />
           )}
 
-          <section className="grid gap-4 xl:grid-cols-2">
+          <section className="grid auto-rows-fr items-stretch gap-5 xl:grid-cols-2">
             <SensorTrendChart readings={data.sensorReadings || []} />
             <NutrientTrendChart readings={data.sensorReadings || []} />
           </section>
 
-          <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+          <section className="grid auto-rows-fr items-stretch gap-5 xl:grid-cols-2">
             <PredictionHistoryChart predictions={data.predictions || []} />
             <RecentReadingsTable readings={data.sensorReadings || []} />
           </section>
         </div>
 
-        <aside className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-24 xl:self-start">
+        <aside className="grid min-w-0 auto-rows-fr gap-5 md:grid-cols-2 xl:sticky xl:top-24 xl:flex xl:flex-col xl:self-start">
           <BatchPanel
             cropBatches={data.cropBatches || []}
             isMock={data.isMock}
@@ -187,13 +195,14 @@ export default function DashboardPage({ profile }) {
             latestPrediction={latestPrediction}
             onRefresh={refresh}
           />
-          <PredictionPanel prediction={latestPrediction} stalePrediction={stalePrediction} />
-          <OperationsPanel pumpEvent={latestPump} weather={latestWeather} />
+          <OperationsPanel weather={latestWeather} />
           <ActionList latestReading={latestReading} connectionStatus={connectionStatus} />
         </aside>
       </section>
 
-      <LocationPanel profile={profile} latestReading={latestReading} />
+      <section className="pt-1">
+        <LocationPanel profile={profile} latestReading={latestReading} />
+      </section>
 
       <PredictionDetailModal
         type={detailType}

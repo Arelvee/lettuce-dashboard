@@ -1,14 +1,14 @@
 export const SENSOR_META = {
   humidity: { label: "Humidity", unit: "%RH", min: 65, max: 85, precision: 1 },
-  atemp: { label: "Air Temp", unit: "C", min: 22, max: 30, precision: 1 },
-  wtemp: { label: "Water Temp", unit: "C", min: 18, max: 22, precision: 1 },
-  tds: { label: "TDS", unit: "ppm", min: 700, max: 900, precision: 0 },
-  ec: { label: "EC", unit: "uS/cm", min: 900, max: 1600, precision: 0 },
-  light: { label: "Light", unit: "lux", min: 8000, max: 24000, precision: 0 },
-  ppfd: { label: "PPFD", unit: "umol/m2/s", min: 150, max: 450, precision: 0 },
-  r445: { label: "R445", unit: "a.u.", min: 0.1, max: 0.55, precision: 4 },
-  r480: { label: "R480", unit: "a.u.", min: 0.12, max: 0.6, precision: 4 },
-  ph: { label: "pH", unit: "pH", min: 5.8, max: 6.4, precision: 2 },
+  atemp: { label: "Air Temp", unit: "C", min: 24, max: 30, precision: 1 },
+  wtemp: { label: "Water Temp", unit: "C", min: 20, max: 24.5, precision: 1 },
+  tds: { label: "TDS", unit: "ppm", min: 600, max: 1020, precision: 0 },
+  ec: { label: "EC", unit: "uS/cm", min: 950, max: 1600, precision: 0 },
+  light: { label: "Light", unit: "lux", min: 10000, max: 24000, precision: 0 },
+  ppfd: { label: "PPFD", unit: "umol/m2/s", min: 180, max: 430, precision: 0 },
+  r445: { label: "R445", unit: "a.u.", min: 0.12, max: 0.58, precision: 4 },
+  r480: { label: "R480", unit: "a.u.", min: 0.14, max: 0.62, precision: 4 },
+  ph: { label: "pH", unit: "pH", min: 5.7, max: 6.4, precision: 2 },
 };
 
 const advice = {
