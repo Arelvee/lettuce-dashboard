@@ -19,6 +19,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
   const [mode, setMode] = useState("login");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState("info");
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -29,15 +30,23 @@ export default function AuthPage({ onBack, onAuthenticated }) {
   });
 
   const ActiveIcon = modes[mode].icon;
+  const isAuthMode = mode === "login" || mode === "register";
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function switchMode(nextMode) {
+    setMode(nextMode);
+    setMessage("");
+    setMessageTone("info");
   }
 
   async function submit(event) {
     event.preventDefault();
     setBusy(true);
     setMessage("");
+    setMessageTone("info");
     try {
       if (mode === "login") {
         const session = await signInWithEmail(form.email, form.password);
@@ -54,19 +63,23 @@ export default function AuthPage({ onBack, onAuthenticated }) {
           return;
         }
         setMode("verify");
-        setMessage("Registration received. Check your email and verify your account before signing in.");
+        setMessageTone("success");
+        setMessage("Registration received. We sent the verification email. Check your inbox, then sign in after confirming.");
         return;
       }
       if (mode === "recover") {
         await sendPasswordReset(form.email);
+        setMessageTone("success");
         setMessage("Password reset email sent. Please check your inbox.");
         return;
       }
       if (mode === "verify") {
         await resendVerification(form.email);
+        setMessageTone("success");
         setMessage("Verification email resent. Please check your inbox.");
       }
     } catch (error) {
+      setMessageTone("error");
       setMessage(error instanceof Error ? error.message : "Request failed.");
     } finally {
       setBusy(false);
@@ -74,32 +87,33 @@ export default function AuthPage({ onBack, onAuthenticated }) {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.22),transparent_34%),linear-gradient(135deg,#06110f,#071426_58%,#020617)] text-white">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_14%_12%,rgba(52,211,153,0.2),transparent_32%),radial-gradient(circle_at_82%_20%,rgba(14,165,233,0.18),transparent_34%),linear-gradient(135deg,#f8fffb_0%,#eefaf4_48%,#edf6ff_100%)] text-slate-950">
       <div className="mx-auto grid min-h-dvh max-w-7xl items-center gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)] lg:gap-8 lg:px-8">
-        <section className="relative order-2 flex min-h-[360px] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-5 sm:p-8 lg:order-1 lg:min-h-[calc(100dvh-3rem)]"
+        <section className="relative order-2 flex min-h-[360px] flex-col justify-between overflow-hidden rounded-lg bg-cover bg-center p-5 text-white shadow-2xl shadow-emerald-950/15 sm:p-8 lg:order-1 lg:min-h-[calc(100dvh-3rem)]"
           style={{
             backgroundImage:
-              "linear-gradient(180deg, rgba(2,6,23,0.18), rgba(2,6,23,0.92)), url('https://commons.wikimedia.org/wiki/Special:Redirect/file/Lettuce_in_Vertical_Farm.jpg')",
+              "linear-gradient(130deg, rgba(3, 31, 28, 0.92), rgba(9, 59, 68, 0.7) 52%, rgba(6, 78, 59, 0.32)), url('https://commons.wikimedia.org/wiki/Special:Redirect/file/Lettuce_in_Vertical_Farm.jpg')",
           }}
         >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_32%_20%,rgba(190,242,100,0.26),transparent_28%),linear-gradient(180deg,transparent,rgba(2,6,23,0.46))]" />
           <div className="relative z-10 flex items-center justify-between gap-3">
             <ThesisLogo inverse />
             <button
               type="button"
               onClick={onBack}
-              className="focus-ring inline-flex h-10 w-fit items-center gap-2 rounded-lg bg-white/10 px-3 text-sm font-semibold backdrop-blur transition hover:bg-white/20"
+              className="focus-ring inline-flex h-10 w-fit items-center gap-2 rounded-lg bg-white/15 px-3 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur transition hover:bg-white/24"
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               Back
             </button>
           </div>
-          <div className="mt-16 max-w-xl lg:mt-20">
-            <p className="text-sm font-bold uppercase tracking-normal text-emerald-300">Secure Access</p>
-            <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-5xl">
+          <div className="relative z-10 mt-16 max-w-xl lg:mt-20">
+            <p className="text-sm font-bold uppercase tracking-normal text-lime-200">Secure Access</p>
+            <h1 className="mt-3 text-3xl font-black leading-tight text-white sm:text-5xl">
               Crop monitoring, prediction, and decision support in one workspace.
             </h1>
-            <p className="mt-4 text-base leading-7 text-slate-200">
-              Accounts use email-based authentication. New users verify their email before dashboard access.
+            <p className="mt-4 max-w-lg text-base font-medium leading-7 text-emerald-50/90">
+              Accounts use email-based authentication with a verification email before dashboard access.
             </p>
           </div>
           <a
@@ -111,30 +125,30 @@ export default function AuthPage({ onBack, onAuthenticated }) {
         </section>
 
         <section className="order-1 flex items-center justify-center lg:order-2">
-          <div className="w-full max-w-lg rounded-lg border border-emerald-100/80 bg-white/92 p-5 text-slate-950 shadow-2xl shadow-emerald-950/15 backdrop-blur-xl sm:p-6">
+          <div className="w-full max-w-lg rounded-lg border border-white bg-white/90 p-5 text-slate-950 shadow-2xl shadow-emerald-950/12 ring-1 ring-emerald-900/5 backdrop-blur-xl sm:p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-950/20">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 via-teal-500 to-sky-500 text-white shadow-lg shadow-emerald-900/20">
                 <ActiveIcon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
                 <p className="section-title">System Access</p>
-                <h2 className="text-2xl font-bold">{modes[mode].title}</h2>
+                <h2 className="text-2xl font-black">{modes[mode].title}</h2>
               </div>
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setMode("login")}
-                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "login" ? "bg-gradient-to-r from-emerald-700 to-teal-700 text-white shadow-sm" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
+                onClick={() => switchMode("login")}
+                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition ${mode === "login" ? "bg-gradient-to-r from-emerald-600 to-sky-600 text-white shadow-sm shadow-emerald-900/15" : "bg-slate-100 text-slate-700 ring-1 ring-slate-200 hover:bg-emerald-50 hover:text-emerald-800"}`}
               >
                 <LockKeyhole className="h-4 w-4" aria-hidden="true" />
                 Login
               </button>
               <button
                 type="button"
-                onClick={() => setMode("register")}
-                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${mode === "register" ? "bg-gradient-to-r from-emerald-700 to-teal-700 text-white shadow-sm" : "bg-emerald-50 text-slate-700 hover:bg-emerald-100"}`}
+                onClick={() => switchMode("register")}
+                className={`focus-ring inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition ${mode === "register" ? "bg-gradient-to-r from-emerald-600 to-sky-600 text-white shadow-sm shadow-emerald-900/15" : "bg-slate-100 text-slate-700 ring-1 ring-slate-200 hover:bg-emerald-50 hover:text-emerald-800"}`}
               >
                 <UserPlus className="h-4 w-4" aria-hidden="true" />
                 Register
@@ -167,7 +181,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">Email address</span>
                 <div className="relative mt-1">
-                  <Mail className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400" aria-hidden="true" />
+                  <Mail className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-emerald-600" aria-hidden="true" />
                   <input
                     type="email"
                     value={form.email}
@@ -178,7 +192,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                 </div>
               </label>
 
-              {mode === "login" || mode === "register" ? (
+              {isAuthMode ? (
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Password</span>
                   <input
@@ -206,8 +220,22 @@ export default function AuthPage({ onBack, onAuthenticated }) {
                 </label>
               ) : null}
 
+              {mode === "verify" ? (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm font-semibold text-emerald-900">
+                  Enter the same email used during registration, then resend the verification email if the first one did not arrive.
+                </div>
+              ) : null}
+
               {message ? (
-                <div className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">
+                <div
+                  className={`rounded-lg border px-3 py-2 text-sm font-medium ${
+                    messageTone === "error"
+                      ? "border-rose-200 bg-rose-50 text-rose-800"
+                      : messageTone === "success"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                        : "border-sky-200 bg-sky-50 text-sky-800"
+                  }`}
+                >
                   {message}
                 </div>
               ) : null}
@@ -215,7 +243,7 @@ export default function AuthPage({ onBack, onAuthenticated }) {
               <button
                 type="submit"
                 disabled={busy}
-                className="focus-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-700 to-teal-700 px-4 text-sm font-bold text-white shadow-sm shadow-emerald-950/20 transition hover:from-emerald-800 hover:to-cyan-800 disabled:cursor-wait disabled:opacity-70"
+                className="focus-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 px-4 text-sm font-black text-white shadow-sm shadow-emerald-950/20 transition hover:from-emerald-700 hover:to-sky-700 disabled:cursor-wait disabled:opacity-70"
               >
                 <ActiveIcon className="h-4 w-4" aria-hidden="true" />
                 {busy ? "Processing..." : modes[mode].title}
@@ -223,10 +251,10 @@ export default function AuthPage({ onBack, onAuthenticated }) {
             </form>
 
             <div className="mt-5 flex flex-wrap justify-between gap-3 text-sm">
-              <button type="button" onClick={() => setMode("recover")} className="font-semibold text-slate-600 hover:text-slate-950">
+              <button type="button" onClick={() => switchMode("recover")} className="font-bold text-slate-600 transition hover:text-emerald-700">
                 Forgot password?
               </button>
-              <button type="button" onClick={() => setMode("verify")} className="font-semibold text-slate-600 hover:text-slate-950">
+              <button type="button" onClick={() => switchMode("verify")} className="font-bold text-slate-600 transition hover:text-sky-700">
                 Resend verification
               </button>
             </div>

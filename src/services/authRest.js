@@ -6,15 +6,36 @@ const authHeaders = (token) => ({
   "Content-Type": "application/json",
 });
 
-async function authRequest(path, { method = "POST", body, token } = {}) {
-  const response = await fetch(`${SUPABASE_URL}/auth/v1${path}`, {
+function authRedirectUrl() {
+  return window.location.origin;
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function withRedirect(path, redirectTo) {
+  if (!redirectTo) return path;
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}redirect_to=${encodeURIComponent(redirectTo)}`;
+}
+
+async function authRequest(path, { method = "POST", body, token, redirectTo } = {}) {
+  const requestPath = withRedirect(path, redirectTo);
+  const response = await fetch(`${SUPABASE_URL}/auth/v1${requestPath}`, {
     method,
     headers: authHeaders(token),
     body: body ? JSON.stringify(body) : undefined,
   });
 
   const text = await response.text();
-  const payload = text ? JSON.parse(text) : {};
+  let payload = {};
+
+  try {
+    payload = text ? JSON.parse(text) : {};
+  } catch {
+    payload = { message: text };
+  }
 
   if (!response.ok) {
     throw new Error(payload.error_description || payload.msg || payload.message || "Authentication failed.");
@@ -25,42 +46,40 @@ async function authRequest(path, { method = "POST", body, token } = {}) {
 
 export function signInWithEmail(email, password) {
   return authRequest("/token?grant_type=password", {
-    body: { email, password },
+    body: { email: normalizeEmail(email), password },
   });
 }
 
 export function signUpWithEmail({ email, password, fullName, role, institution }) {
   return authRequest("/signup", {
+    redirectTo: authRedirectUrl(),
     body: {
-      email,
+      email: normalizeEmail(email),
       password,
       data: {
         full_name: fullName,
         role,
         institution,
       },
-      email_redirect_to: window.location.origin,
     },
   });
 }
 
 export function sendPasswordReset(email) {
   return authRequest("/recover", {
+    redirectTo: authRedirectUrl(),
     body: {
-      email,
-      redirect_to: window.location.origin,
+      email: normalizeEmail(email),
     },
   });
 }
 
 export function resendVerification(email) {
   return authRequest("/resend", {
+    redirectTo: authRedirectUrl(),
     body: {
       type: "signup",
-      email,
-      options: {
-        email_redirect_to: window.location.origin,
-      },
+      email: normalizeEmail(email),
     },
   });
 }
@@ -86,4 +105,3 @@ export function logout(accessToken) {
     token: accessToken,
   });
 }
-
