@@ -15,6 +15,23 @@
   --surface-shadow: 0 18px 48px rgba(8, 47, 73, 0.08), 0 2px 10px rgba(15, 23, 42, 0.04);
   --panel-bg: rgba(245, 251, 248, 0.86);
   --panel-border: rgba(148, 163, 184, 0.36);
+  --schematic-bg: #ffffff;
+  --schematic-fill: #ffffff;
+  --schematic-fill-muted: #e9f8f3;
+  --schematic-grid: rgba(20, 184, 166, 0.08);
+  --schematic-line: #1f4651;
+  --schematic-support-line: rgba(31, 70, 81, 0.42);
+  --schematic-text: #0f2f35;
+  --schematic-pipe-top: #ffffff;
+  --schematic-pipe-fill: #eaf7fb;
+  --schematic-reservoir-top: #ecfeff;
+  --schematic-reservoir-bottom: #ccfbf1;
+  --schematic-leaf: #86efac;
+  --schematic-flow: #0891b2;
+  --schematic-chip-border: rgba(8, 145, 178, 0.22);
+  --schematic-badge-bg: #bff4e9;
+  --schematic-badge-pill: #f8fbff;
+  --schematic-shadow: #0f766e;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -34,6 +51,23 @@
   --surface-shadow: 0 22px 64px rgba(0, 0, 0, 0.36);
   --panel-bg: rgba(255, 255, 255, 0.045);
   --panel-border: rgba(148, 163, 184, 0.16);
+  --schematic-bg: #071316;
+  --schematic-fill: #0d1d22;
+  --schematic-fill-muted: #102930;
+  --schematic-grid: rgba(148, 163, 184, 0.13);
+  --schematic-line: #cbd5e1;
+  --schematic-support-line: rgba(203, 213, 225, 0.48);
+  --schematic-text: #f8fafc;
+  --schematic-pipe-top: #213d46;
+  --schematic-pipe-fill: #162f36;
+  --schematic-reservoir-top: #0f3f46;
+  --schematic-reservoir-bottom: #0f2d35;
+  --schematic-leaf: #86efac;
+  --schematic-flow: #5eead4;
+  --schematic-chip-border: rgba(94, 234, 212, 0.24);
+  --schematic-badge-bg: #5eead4;
+  --schematic-badge-pill: rgba(248, 250, 252, 0.92);
+  --schematic-shadow: #000000;
 }
 
 body {
@@ -397,7 +431,20 @@ select {
   }
 
   .tank-water-surface {
+    background: var(--tank-water-surface, rgba(255, 255, 255, 0.42));
     animation: tankSurface 4s ease-in-out infinite;
+  }
+
+  .tank-water-fill {
+    background:
+      radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.34), transparent 20%),
+      linear-gradient(to top, var(--tank-water-from), var(--tank-water-via), var(--tank-water-to));
+    box-shadow: inset 0 18px 28px rgba(255, 255, 255, 0.1), inset 0 -18px 32px rgba(8, 47, 73, 0.12);
+  }
+
+  .tank-water-level {
+    background: var(--tank-water-accent, #14b8a6);
+    opacity: 0.38;
   }
 
   .tank-flow-on {
@@ -413,6 +460,88 @@ select {
     background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.88) 45%, transparent 72%);
     transform: translateX(-100%);
     animation: tankPumpFlow 1.2s linear infinite;
+  }
+
+  .schematic-flow-line {
+    fill: none;
+    stroke: var(--schematic-flow);
+    stroke-dasharray: 10 14;
+    stroke-linecap: round;
+    stroke-width: 3;
+    opacity: 0.72;
+    animation: schematicFlow 1.6s linear infinite;
+  }
+
+  .schematic-support-frame {
+    opacity: 0.9;
+    filter: drop-shadow(0 3px 5px rgba(15, 70, 81, 0.08));
+  }
+
+  .schematic-reservoir-link {
+    cursor: pointer;
+    outline: none;
+  }
+
+  .schematic-reservoir-link:hover .schematic-reservoir-outline,
+  .schematic-reservoir-link:focus-visible .schematic-reservoir-outline {
+    stroke: var(--tank-water-accent, var(--schematic-line));
+    stroke-width: 2.6;
+  }
+
+  .schematic-water-fill {
+    opacity: 0.88;
+  }
+
+  .schematic-water-wave {
+    fill: none;
+    stroke: var(--tank-water-surface, rgba(255, 255, 255, 0.52));
+    stroke-linecap: round;
+    stroke-width: 8;
+    opacity: 0.72;
+    animation: schematicWaterWave 3.8s ease-in-out infinite;
+  }
+
+  .schematic-flow-delay {
+    animation-delay: 0.35s;
+  }
+
+  .schematic-flow-delay-long {
+    animation-delay: 0.7s;
+  }
+
+  .schematic-sensor-badge {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: schematicBadgeFloat 4.4s ease-in-out infinite;
+  }
+
+  .schematic-badge-orb {
+    fill: var(--badge-soft, var(--schematic-badge-bg));
+    stroke: var(--badge-tone, rgba(255, 255, 255, 0.94));
+    stroke-width: 2.5;
+    filter: drop-shadow(0 7px 10px rgba(15, 118, 110, 0.22));
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: schematicBadgePulse 2.4s ease-in-out infinite;
+  }
+
+  .schematic-badge-pill {
+    fill: var(--schematic-badge-pill);
+    stroke: var(--schematic-chip-border);
+    stroke-width: 1.2;
+    filter: drop-shadow(0 7px 11px rgba(15, 23, 42, 0.1));
+  }
+
+  .schematic-pump {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: schematicPumpPulse 1.8s ease-in-out infinite;
+  }
+
+  .schematic-leaf-mark {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: schematicLeafMotion 4.6s ease-in-out infinite;
   }
 }
 
@@ -501,6 +630,35 @@ select {
   to { transform: translateX(110%); }
 }
 
+@keyframes schematicFlow {
+  to { stroke-dashoffset: -48; }
+}
+
+@keyframes schematicWaterWave {
+  0%, 100% { transform: translateX(-10px); opacity: 0.55; }
+  50% { transform: translateX(12px); opacity: 0.86; }
+}
+
+@keyframes schematicBadgeFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes schematicBadgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes schematicPumpPulse {
+  0%, 100% { opacity: 0.82; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes schematicLeafMotion {
+  0%, 100% { transform: rotate(-1deg) scale(1); }
+  50% { transform: rotate(1.5deg) scale(1.04); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .logo-mark-animated,
   .logo-mark-loading,
@@ -515,7 +673,13 @@ select {
   .signal-wave,
   .scan-line,
   .tank-water-surface,
-  .tank-flow-on::after {
+  .tank-flow-on::after,
+  .schematic-flow-line,
+  .schematic-water-wave,
+  .schematic-sensor-badge,
+  .schematic-badge-orb,
+  .schematic-pump,
+  .schematic-leaf-mark {
     animation: none !important;
   }
 }

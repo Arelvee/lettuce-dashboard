@@ -1,6 +1,7 @@
 import { Activity, Droplets, Gauge, Power, ThermometerSun, Zap } from "lucide-react";
 import { formatDateTime, formatNumber } from "../../utils/format";
 import { getSensorStatus, SENSOR_META } from "../../utils/health";
+import { getWaterQualityPalette } from "../../utils/waterQuality";
 import StatusBadge from "../common/StatusBadge";
 
 const waterSensors = [
@@ -83,9 +84,10 @@ export default function WaterTankPanel({ latestReading, pumpEvent, connectionSta
   const reservoirScore = getWaterScore(latestReading);
   const reservoirTone = reservoirScore === null ? "slate" : reservoirScore >= 85 ? "emerald" : reservoirScore >= 65 ? "amber" : "rose";
   const timestamp = latestReading?.timestamp || pumpEvent?.timestamp;
+  const waterQuality = getWaterQualityPalette(latestReading);
 
   return (
-    <section className="surface overflow-hidden">
+    <section id="water-tank-panel" className="surface scroll-mt-24 overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-end sm:justify-between sm:p-5 dark:border-white/10">
         <div>
           <p className="section-title">Water Tank</p>
@@ -108,11 +110,11 @@ export default function WaterTankPanel({ latestReading, pumpEvent, connectionSta
             </p>
           </div>
 
-          <div className="relative mx-auto mt-9 aspect-[4/3] w-full max-w-[27rem]">
+          <div className="relative mx-auto mt-9 aspect-[4/3] w-full max-w-[27rem]" style={waterQuality.cssVars}>
             <div className="absolute left-[12%] right-[12%] top-[15%] bottom-[10%] overflow-hidden rounded-b-[2rem] rounded-t-xl border-2 border-cyan-200/90 bg-white/55 shadow-inner dark:border-cyan-200/20 dark:bg-slate-950/30">
-              <div className="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-cyan-500/70 via-teal-400/55 to-emerald-300/35 dark:from-cyan-500/55 dark:via-teal-400/35 dark:to-emerald-300/20" />
-              <div className="tank-water-surface absolute left-[-8%] right-[-8%] top-[30%] h-8 rounded-[50%] bg-white/35 blur-[1px] dark:bg-cyan-100/15" />
-              <div className="absolute left-[8%] right-[8%] top-[27%] h-px bg-cyan-700/25 dark:bg-cyan-100/20" />
+              <div className="tank-water-fill absolute inset-x-0 bottom-0 h-[70%]" />
+              <div className="tank-water-surface absolute left-[-8%] right-[-8%] top-[30%] h-8 rounded-[50%] blur-[1px]" />
+              <div className="tank-water-level absolute left-[8%] right-[8%] top-[27%] h-px" />
             </div>
 
             <div className="absolute left-[16%] right-[16%] top-[12%] h-4 rounded-full border border-cyan-200 bg-white/70 dark:border-cyan-200/15 dark:bg-white/10" />

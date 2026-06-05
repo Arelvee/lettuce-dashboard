@@ -8,15 +8,14 @@ import { useState } from "react";
 import PredictionHistoryChart from "../components/charts/PredictionHistoryChart";
 import NutrientTrendChart from "../components/charts/NutrientTrendChart";
 import SensorTrendChart from "../components/charts/SensorTrendChart";
-import EmptyState from "../components/common/EmptyState";
 import ActionList from "../components/dashboard/ActionList";
 import BatchPanel from "../components/dashboard/BatchPanel";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DeviceStatusPanel from "../components/dashboard/DeviceStatusPanel";
+import EnvironmentCanopyPanel from "../components/dashboard/EnvironmentCanopyPanel";
 import MetricCard from "../components/dashboard/MetricCard";
 import OperationsPanel from "../components/dashboard/OperationsPanel";
 import PredictionDetailModal from "../components/dashboard/PredictionDetailModal";
-import SensorTile from "../components/dashboard/SensorTile";
 import WaterTankPanel from "../components/dashboard/WaterTankPanel";
 import LocationPanel from "../components/location/LocationPanel";
 import RecentReadingsTable from "../components/table/RecentReadingsTable";
@@ -147,34 +146,11 @@ export default function DashboardPage({ profile }) {
             connectionStatus={connectionStatus}
           />
 
-          {latestReading ? (
-            <section>
-              <div className="mb-3 flex items-end justify-between gap-3">
-                <div>
-                  <p className="section-title">Sensor Monitoring</p>
-                  <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Environment and canopy board</h2>
-                </div>
-                <p className="hidden text-sm text-slate-500 sm:block dark:text-slate-400">
-                  {formatDateTime(latestReading.timestamp)}
-                </p>
-              </div>
-              <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-                {environmentSensorOrder.map((sensorKey) => (
-                  <SensorTile
-                    key={sensorKey}
-                    sensorKey={sensorKey}
-                    value={latestReading[sensorKey]}
-                    connectionStatus={connectionStatus}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : (
-            <EmptyState
-              title="No sensor readings yet"
-              message="ESP32 is offline or has not sent data yet. Check power, Wi-Fi, and the data upload service."
-            />
-          )}
+          <EnvironmentCanopyPanel
+            latestReading={latestReading}
+            connectionStatus={connectionStatus}
+            sensorKeys={environmentSensorOrder}
+          />
 
           <section className="grid auto-rows-fr items-stretch gap-5 xl:grid-cols-2">
             <SensorTrendChart readings={data.sensorReadings || []} />
