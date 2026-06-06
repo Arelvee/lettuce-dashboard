@@ -32,12 +32,20 @@ function batchNumberFromName(name, fallback) {
   return match ? Number(match[1]) : fallback;
 }
 
+function paddedBatchNumber(number) {
+  return String(number).padStart(3, "0");
+}
+
+function batchId(number) {
+  return `lettuce-batch-${paddedBatchNumber(number)}`;
+}
+
 function batchLabel(number) {
-  return `Batch #${String(number).padStart(3, "0")}`;
+  return `Lettuce Batch ${paddedBatchNumber(number)}`;
 }
 
 function normalizeBatch(batch, index) {
-  const number = batch.number || batchNumberFromName(batch.batch_name, index + 1);
+  const number = batch.number || batchNumberFromName(batch.batch_name || batch.id, index + 1);
   return {
     ...batch,
     number,
@@ -112,7 +120,7 @@ export default function BatchPanel({ cropBatches = [], isMock, latestReading, la
     const startedAt = dateInputToTimestamp(seedDate);
     const number = nextNumber;
     const nextBatch = {
-      id: `batch-${seedDate.replaceAll("-", "")}-${String(number).padStart(3, "0")}`,
+      id: batchId(number),
       batch_name: batchLabel(number),
       started_at: startedAt,
       ended_at: null,

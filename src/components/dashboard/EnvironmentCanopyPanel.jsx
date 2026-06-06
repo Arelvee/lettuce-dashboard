@@ -361,7 +361,12 @@ function BlueprintTowerDiagram({ orderedSensors, latestReading, connectionStatus
                   height="34"
                   rx="13"
                 />
-                <text x={badgeX + 60 + sensor.width / 2} y={badgeY + 30.5} fill="var(--schematic-text)" fontSize="13.5" fontWeight="900" textAnchor="middle">
+                <text
+                  x={badgeX + 60 + sensor.width / 2}
+                  y={badgeY + 30.5}
+                  className="schematic-badge-text"
+                  textAnchor="middle"
+                >
                   {sensor.label}
                 </text>
               </g>
@@ -390,8 +395,8 @@ function CanopyReadingCard({ sensorKey, value, connectionStatus }) {
             <SensorIcon className="h-[1.125rem] w-[1.125rem]" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-950 dark:text-white">{meta.label}</p>
-            <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-300">{sensor?.group}</p>
+            <p className="text-sm font-semibold leading-5 text-slate-950 dark:text-slate-50">{meta.label}</p>
+            <p className="mt-0.5 text-xs font-medium leading-4 text-slate-500 dark:text-slate-300">{sensor?.group}</p>
           </div>
         </div>
         <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
@@ -399,12 +404,12 @@ function CanopyReadingCard({ sensorKey, value, connectionStatus }) {
 
       <div className="mt-4 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <span className="text-2xl font-black text-slate-950 dark:text-white">
+          <span className="text-2xl font-bold tracking-normal text-slate-950 dark:text-slate-50">
             {hasReading ? formatNumber(value, meta.precision) : "--"}
           </span>
-          <span className="ml-1 text-xs font-bold text-slate-500 dark:text-slate-300">{meta.unit}</span>
+          <span className="ml-1 text-xs font-semibold text-slate-500 dark:text-slate-300">{meta.unit}</span>
         </div>
-        <span className="rounded-full bg-white/80 px-2 py-1 text-xs font-bold text-slate-700 ring-1 ring-slate-200 dark:bg-slate-950/40 dark:text-slate-100 dark:ring-white/10">
+        <span className="rounded-full bg-white/80 px-2 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 dark:bg-slate-950/60 dark:text-slate-100 dark:ring-white/10">
           {hasReading ? `${Math.round(getSensorStatus(sensorKey, value).score)}% fit` : "No data"}
         </span>
       </div>
@@ -435,9 +440,9 @@ function CanopyStatusChip({ sensorKey, value, connectionStatus }) {
   return (
     <div className={`flex min-h-[4rem] items-center gap-3 rounded-lg border px-3 py-2 ${classes.card}`}>
       <span className={`h-3 w-3 shrink-0 rounded-full shadow-lg ${classes.marker}`} />
-      <p className="text-sm font-black leading-tight text-slate-700 dark:text-slate-50">
+      <p className="text-sm font-semibold leading-5 text-slate-700 dark:text-slate-100">
         {meta.label}:<br />
-        <span className="text-slate-500 dark:text-slate-300">{status.label}</span>
+        <span className="font-semibold text-slate-500 dark:text-slate-300">{status.label}</span>
       </p>
     </div>
   );

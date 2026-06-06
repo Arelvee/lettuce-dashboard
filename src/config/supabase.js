@@ -7,6 +7,9 @@ export const SUPABASE_ANON_KEY =
 
 export const REFRESH_SECONDS = Number(import.meta.env.VITE_REFRESH_SECONDS || 30);
 
+export const FALLBACK_BATCH_ID =
+  import.meta.env.VITE_ACTIVE_BATCH_ID || "lettuce-batch-001";
+
 export const TABLES = {
   cropBatches: "crop_batches",
   sensorReadings: "sensor_readings",

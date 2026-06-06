@@ -1,4 +1,4 @@
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "../config/supabase";
+import { FALLBACK_BATCH_ID, SUPABASE_ANON_KEY, SUPABASE_URL } from "../config/supabase";
 
 const headers = {
   apikey: SUPABASE_ANON_KEY,
@@ -6,11 +6,17 @@ const headers = {
   "Content-Type": "application/json",
 };
 
-export async function fetchTable(tableName, { limit = 100, order = "timestamp.desc" } = {}) {
+export async function fetchTable(tableName, { filters = {}, limit = 100, order = "timestamp.desc" } = {}) {
   const params = new URLSearchParams({
     select: "*",
     order,
     limit: String(limit),
+  });
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && value !== "") {
+      params.set(key, value);
+    }
   });
 
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?${params}`, {
@@ -26,13 +32,16 @@ export async function fetchTable(tableName, { limit = 100, order = "timestamp.de
 }
 
 export async function fetchDashboardTables(tables) {
-  const [cropBatches, sensorReadings, denoisedReadings, predictions, pumpEvents, weatherSnapshots] =
+  const cropBatches = await fetchTable(tables.cropBatches, { limit: 50, order: "created_at.desc" });
+  const activeBatch = cropBatches.find((batch) => batch.status === "active");
+  const activeBatchId = activeBatch?.id || FALLBACK_BATCH_ID;
+  const batchFilter = { batch_id: `eq.${activeBatchId}` };
+  const [sensorReadings, denoisedReadings, predictions, pumpEvents, weatherSnapshots] =
     await Promise.all([
-      fetchTable(tables.cropBatches, { limit: 50, order: "created_at.desc" }),
-      fetchTable(tables.sensorReadings, { limit: 180 }),
-      fetchTable(tables.denoisedReadings, { limit: 60 }),
-      fetchTable(tables.predictions, { limit: 50 }),
-      fetchTable(tables.pumpEvents, { limit: 30 }),
+      fetchTable(tables.sensorReadings, { filters: batchFilter, limit: 180 }),
+      fetchTable(tables.denoisedReadings, { filters: batchFilter, limit: 60 }),
+      fetchTable(tables.predictions, { filters: batchFilter, limit: 50 }),
+      fetchTable(tables.pumpEvents, { filters: batchFilter, limit: 30 }),
       fetchTable(tables.weatherSnapshots, { limit: 30 }),
     ]);
 
@@ -43,6 +52,7 @@ export async function fetchDashboardTables(tables) {
     predictions,
     pumpEvents,
     weatherSnapshots,
+    activeBatchId,
   };
 }
 

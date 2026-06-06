@@ -12,6 +12,8 @@ const DEFAULT_LOCATION = {
   source: "default",
 };
 
+const RESOLVING_ADDRESS = "Resolving address...";
+
 function isPrivateIp(ip) {
   return (
     /^10\./.test(ip) ||
@@ -35,10 +37,27 @@ function fixedCoordinate(value) {
 
 function addressFromPayload(payload) {
   return [
+    payload.display_name,
     payload.locality || payload.city,
-    payload.principalSubdivision,
-    payload.countryName,
+    payload.principalSubdivision || payload.region || payload.state,
+    payload.countryName || payload.country_name || payload.country,
   ].filter(Boolean).join(", ");
+}
+
+function fallbackAddressFor(latitude, longitude, label = "Pinned location") {
+  return `${label || "Pinned location"} (${fixedCoordinate(latitude)}, ${fixedCoordinate(longitude)})`;
+}
+
+async function fetchJsonWithTimeout(url, timeoutMs = 7000) {
+  const controller = new window.AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 export default function LocationPanel({ profile, latestReading }) {
@@ -61,6 +80,9 @@ export default function LocationPanel({ profile, latestReading }) {
   const [busy, setBusy] = useState(false);
   const [mapMode, setMapMode] = useState("map");
   const [mapMenuOpen, setMapMenuOpen] = useState(false);
+  const locationLatitude = location.latitude;
+  const locationLongitude = location.longitude;
+  const locationLabel = location.label;
 
   useEffect(() => {
     setLocation(initialLocation);
@@ -69,29 +91,35 @@ export default function LocationPanel({ profile, latestReading }) {
   useEffect(() => {
     let cancelled = false;
     async function resolveAddress() {
+      const fallbackAddress = fallbackAddressFor(locationLatitude, locationLongitude, locationLabel);
       try {
-        const response = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(location.latitude)}&longitude=${encodeURIComponent(location.longitude)}&localityLanguage=en`,
+        const payload = await fetchJsonWithTimeout(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(locationLatitude)}&longitude=${encodeURIComponent(locationLongitude)}&localityLanguage=en`,
         );
-        const payload = await response.json();
-        const address = addressFromPayload(payload);
-        if (!cancelled && address) {
-          setLocation((current) => (
-            Number(current.latitude) === Number(location.latitude) &&
-            Number(current.longitude) === Number(location.longitude)
-              ? { ...current, address }
-              : current
-          ));
-        }
+        const address = addressFromPayload(payload) || fallbackAddress;
+        if (cancelled) return;
+        setLocation((current) => (
+          Number(current.latitude) === Number(locationLatitude) &&
+          Number(current.longitude) === Number(locationLongitude)
+            ? { ...current, address }
+            : current
+        ));
       } catch {
-        // Keep the saved label if reverse-geocoding is unavailable.
+        if (cancelled) return;
+        setLocation((current) => (
+          Number(current.latitude) === Number(locationLatitude) &&
+          Number(current.longitude) === Number(locationLongitude) &&
+          (!current.address || current.address === RESOLVING_ADDRESS)
+            ? { ...current, address: fallbackAddress }
+            : current
+        ));
       }
     }
     resolveAddress();
     return () => {
       cancelled = true;
     };
-  }, [location.latitude, location.longitude]);
+  }, [locationLatitude, locationLongitude, locationLabel]);
 
   const locateDevice = useCallback((mode = "manual") => {
     setBusy(true);
@@ -107,7 +135,7 @@ export default function LocationPanel({ profile, latestReading }) {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           label: "Device location",
-          address: "Resolving address...",
+          address: RESOLVING_ADDRESS,
           source: "device",
         });
         setMessage(mode === "auto" ? "Device location detected automatically." : "Device location refreshed.");

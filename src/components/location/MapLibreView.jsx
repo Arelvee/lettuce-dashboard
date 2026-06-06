@@ -137,12 +137,93 @@ function buildingMinHeight(tags = {}) {
 
 function createOverpassQuery(latitude, longitude) {
   return `
-    [out:json][timeout:18];
+    [out:json][timeout:12];
     (
-      way["building"](around:950,${Number(latitude)},${Number(longitude)});
+      way["building"](around:850,${Number(latitude)},${Number(longitude)});
     );
     out tags geom;
   `;
+}
+
+function seededNoise(seed) {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function rectangleFeature(centerLng, centerLat, widthMeters, depthMeters, height, seed) {
+  const latMeters = 111_320;
+  const lngMeters = Math.max(Math.cos((centerLat * Math.PI) / 180) * latMeters, 1);
+  const halfWidth = widthMeters / lngMeters / 2;
+  const halfDepth = depthMeters / latMeters / 2;
+
+  return {
+    type: "Feature",
+    properties: {
+      height,
+      minHeight: 0,
+      fallback: true,
+      seed,
+    },
+    geometry: {
+      type: "Polygon",
+      coordinates: [[
+        [centerLng - halfWidth, centerLat - halfDepth],
+        [centerLng + halfWidth, centerLat - halfDepth],
+        [centerLng + halfWidth, centerLat + halfDepth],
+        [centerLng - halfWidth, centerLat + halfDepth],
+        [centerLng - halfWidth, centerLat - halfDepth],
+      ]],
+    },
+  };
+}
+
+function createFallbackBuildingFootprints(latitude, longitude) {
+  const lat = Number(latitude);
+  const lng = Number(longitude);
+  const latMeters = 111_320;
+  const lngMeters = Math.max(Math.cos((lat * Math.PI) / 180) * latMeters, 1);
+  const features = [];
+  let seed = 1;
+
+  for (let row = -3; row <= 3; row += 1) {
+    for (let col = -3; col <= 3; col += 1) {
+      if (Math.abs(row) <= 1 && Math.abs(col) <= 1) continue;
+      const n = seededNoise(seed);
+      const eastMeters = col * 92 + (seededNoise(seed + 17) - 0.5) * 24;
+      const northMeters = row * 82 + (seededNoise(seed + 31) - 0.5) * 22;
+      const widthMeters = 28 + seededNoise(seed + 41) * 34;
+      const depthMeters = 24 + seededNoise(seed + 59) * 30;
+      const height = Math.round(8 + n * 44);
+      features.push(
+        rectangleFeature(
+          lng + eastMeters / lngMeters,
+          lat + northMeters / latMeters,
+          widthMeters,
+          depthMeters,
+          height,
+          seed,
+        ),
+      );
+      seed += 1;
+    }
+  }
+
+  return {
+    type: "FeatureCollection",
+    features,
+  };
+}
+
+async function fetchJsonWithTimeout(url, timeoutMs = 9000) {
+  const controller = new window.AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`Overpass responded ${response.status}`);
+    return response.json();
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 function overpassToGeoJson(payload) {
@@ -178,15 +259,16 @@ async function fetchBuildingFootprints(latitude, longitude) {
 
   for (const endpoint of overpassEndpoints) {
     try {
-      const response = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`);
-      if (!response.ok) throw new Error(`Overpass responded ${response.status}`);
-      return overpassToGeoJson(await response.json());
+      const buildingData = overpassToGeoJson(
+        await fetchJsonWithTimeout(`${endpoint}?data=${encodeURIComponent(query)}`),
+      );
+      if (buildingData.features.length) return buildingData;
     } catch {
       // Try the next public Overpass mirror before falling back to an empty building layer.
     }
   }
 
-  return emptyFeatureCollection();
+  return createFallbackBuildingFootprints(latitude, longitude);
 }
 
 async function addOsmBuildingsToMap(map, latitude, longitude, isActive = () => true) {
@@ -207,7 +289,7 @@ async function addOsmBuildingsToMap(map, latitude, longitude, isActive = () => t
         ["linear"],
         ["get", "height"],
         6,
-        "#bbf7d0",
+        "#99f6e4",
         24,
         "#22c55e",
         60,
@@ -215,7 +297,7 @@ async function addOsmBuildingsToMap(map, latitude, longitude, isActive = () => t
       ],
       "fill-extrusion-height": ["get", "height"],
       "fill-extrusion-base": ["get", "minHeight"],
-      "fill-extrusion-opacity": 0.58,
+      "fill-extrusion-opacity": 0.72,
       "fill-extrusion-vertical-gradient": true,
     },
   });
